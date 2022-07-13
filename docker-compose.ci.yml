@@ -1,0 +1,8 @@
+version: "3.9"
+
+services:
+  backend:
+    image: "netnotics-backend:latest"
+
+  frontend:
+    image: "netnotics-frontend:latest"
