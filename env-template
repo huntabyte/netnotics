@@ -1,6 +1,6 @@
-POSTGRES_PASSWORD=CHANGE_ME
+POSTGRES_PASSWORD=postgres
 POSTGRES_DB=app
-DATABASE_URL=postgresql://postgres:CHANGE_ME@postgres/app
-TEST_DATABASE_URL=postgresql://postgres:CHANGE_ME@postgres/apptest
-SECRET_KEY=CHANGE_ME
+DATABASE_URL=postgresql://postgres:postgres@postgres/app
+TEST_DATABASE_URL=postgresql://postgres:postgres@postgres/apptest
+SECRET_KEY=postgres
 BACKEND_CORS_ORIGINS='["http://localhost:3000","http://127.0.0.1:3000"]'
