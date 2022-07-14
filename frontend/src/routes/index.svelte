@@ -1,7 +1,7 @@
 <script>
 	import title from '$lib/stores/title';
 
-	$title = 'Home';
+	$title = 'Netnotics';
 </script>
 
-<h1>Welcome to Netnotics</h1>
+<h1 class="text-xl">Welcome to Netnotics</h1>
