@@ -1,5 +1,7 @@
 import { browser } from '$app/env';
 
+const BASE_URL = 'http://localhost:8000/api/v1';
+
 export function browserGet(key) {
 	if (browser) {
 		const item = localStorage.getItem(key);
@@ -17,7 +19,7 @@ export function browserSet(key, value) {
 	}
 }
 
-export async function post(fetch, url, body) {
+export async function post(fetch, path, body) {
 	let customError = false;
 
 	try {
@@ -31,7 +33,7 @@ export async function post(fetch, url, body) {
 			headers['Authorization'] = 'Bearer ' + token;
 		}
 
-		const res = await fetch(url, {
+		const res = await fetch(`${BASE_URL}${path}`, {
 			method: 'POST',
 			body,
 			headers
@@ -51,7 +53,13 @@ export async function post(fetch, url, body) {
 				throw err;
 			}
 		}
-		return res;
+		try {
+			const json = await res.json();
+			return json;
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
 	} catch (err) {
 		console.log(err);
 		throw customError ? err : { id: '', message: 'An unknown error has occurred' };

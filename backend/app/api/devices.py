@@ -13,7 +13,7 @@ from app.models.user import User
 from app.schemas.device import Device as DeviceSchema
 from app.schemas.device import DeviceCreate, DeviceUpdate
 from app.schemas.request_params import RequestParams
-from app.utils.auth import hash_password
+from app.core.security import hash_password
 
 router = APIRouter(prefix="/devices")
 

@@ -21,7 +21,7 @@ class DeviceUpdate(DeviceBase):
 class DeviceInDBBase(DeviceBase):
     id: int
     name: str
-    user_id: int
+    user_id: str
 
     class Config:
         orm_mode = True
