@@ -1,5 +1,5 @@
 import time
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,6 +14,7 @@ router = APIRouter()
 
 @router.get("/me", response_model=UserResponse)
 async def read_current_user(
+    request: Request,
     current_user: User = Depends(deps.get_current_user),
 ):
     """Get current user"""
@@ -56,6 +57,7 @@ async def register_new_user(
     user = User(
         email=new_user.email,
         hashed_password=get_password_hash(new_user.password),
+        name=new_user.name,
     )
     session.add(user)
     await session.commit()
