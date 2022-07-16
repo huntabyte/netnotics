@@ -1,3 +1,4 @@
+from typing import Optional
 import uuid
 
 from pydantic import BaseModel, EmailStr
@@ -29,3 +30,8 @@ class DeviceResponse(BaseResponse):
     name: str
     ip_address: str
     user_id: uuid.UUID
+
+
+class SessionResponse(BaseResponse):
+    authenticated: bool
+    user_id: Optional[uuid.UUID] = None

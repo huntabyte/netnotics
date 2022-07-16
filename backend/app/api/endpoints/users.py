@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+import time
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api import deps
 from app.core.security import get_password_hash
-from app.models import User
+from app.models import UserSession, User
 from app.schemas.requests import UserCreateRequest, UserUpdatePasswordRequest
 from app.schemas.responses import UserResponse
 
@@ -44,6 +45,7 @@ async def reset_current_user_password(
 
 @router.post("/register", response_model=UserResponse)
 async def register_new_user(
+    response: Response,
     new_user: UserCreateRequest,
     session: AsyncSession = Depends(deps.get_session),
 ):
@@ -57,4 +59,16 @@ async def register_new_user(
     )
     session.add(user)
     await session.commit()
+    user_session = UserSession(user_id=user.id, expires_at=int(time.time()) + 11520)
+    session.add(user_session)
+    await session.commit()
+
+    response.set_cookie(
+        key="session_id",
+        value=user_session.id,
+        expires=int(time.time()) + 11520,
+        path="/",
+        httponly=True,
+    )
+
     return user
