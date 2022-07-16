@@ -7,7 +7,7 @@ export function browserGet(key) {
 		const item = localStorage.getItem(key);
 
 		if (item) {
-			return JSON.parse(item);
+			return item;
 		}
 	}
 	return null;

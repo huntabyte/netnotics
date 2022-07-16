@@ -17,6 +17,7 @@ PWD_CONTEXT = CryptContext(
     deprecated="auto",
     bcrypt__rounds=config.settings.SECURITY_BCRYPT_ROUNDS,
 )
+COOKIE_EXPIRE_TIME = 11520
 
 
 class JWTTokenPayload(BaseModel):

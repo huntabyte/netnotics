@@ -1,21 +1,21 @@
 <script>
-	import { post } from '$lib/utils/requestUtils';
-
 	let email;
 	let password;
 
+	import { BASE_URL } from '$lib/constants';
+
 	async function handleLogin() {
-		const res = await fetch('http://localhost:8000/api/v1/auth/jwt/login', {
+		const res = await fetch(`${BASE_URL}/auth/login`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded'
 			},
+			credentials: 'include',
 			body: new URLSearchParams({
 				username: email,
 				password: password
 			})
 		});
-		console.log(res);
 	}
 </script>
 

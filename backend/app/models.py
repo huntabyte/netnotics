@@ -43,6 +43,23 @@ class User:
 
 @Base.mapped
 @dataclass
+class UserSession:
+    __tablename__ = "user_sessions"
+    __sa_dataclass_metadata_key__ = "sa"
+
+    id: uuid.UUID = field(
+        init=False,
+        default_factory=uuid.uuid4,
+        metadata={"sa": Column(UUID(as_uuid=True), primary_key=True)},
+    )
+    user_id: uuid.UUID = field(
+        metadata={"sa": Column(ForeignKey("users.id", ondelete="CASCADE"))}
+    )
+    expires_at: int = field(metadata={"sa": Column(Integer, nullable=False)})
+
+
+@Base.mapped
+@dataclass
 class Device:
     __tablename__ = "devices"
     __sa_dataclass_metadata_key__ = "sa"
