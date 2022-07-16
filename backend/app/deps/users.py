@@ -1,13 +1,13 @@
-from datetime import datetime
-from typing import Any, Union
+from time import time
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio.session import AsyncSession
+from app.core.config import settings
 from app.deps.db import get_async_session
 from app.models import User
-from app.schemas import Token, TokenPayload
-from sqlalchemy import func, select
-from app.core.security import JWT_SECRET_KEY, JWT_REFRESH_SECRET_KEY, ALGORITHM
+from app.core.security import JWTTokenPayload
+from sqlalchemy import select
+from app.core.security import ALGORITHM
 
 
 from jose import jwt
@@ -17,53 +17,37 @@ from pydantic import ValidationError
 oauth2 = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token", scheme_name="JWT")
 
 
-async def current_user(
+async def get_current_user(
     session: AsyncSession = Depends(get_async_session), token: str = Depends(oauth2)
 ) -> User:
-    try:
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
-        token_data = TokenPayload(**payload)
 
-        if datetime.fromtimestamp(token_data.exp) < datetime.now():
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token expired",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, alogirthms=[ALGORITHM])
     except (jwt.JWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
+            detail="Could not validate credentials.",
         )
 
-    user: Union[dict[str, Any], None] = await session.get(token_data.sub, None)
+    token_data = JWTTokenPayload(**payload)
 
-    if user is None:
+    if token_data.refresh:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Could not find user"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials, cannot use refresh token",
+        )
+    now = int(time.time())
+    if now < token_data.issued_at or now > token_data.expires_at:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials, token expired or not yet valid",
         )
 
-    return User(**user)
+    result = await session.execute(select(User).where(User.email == token_data.sub))
+    user: User | None = result.scalars().first()
 
-
-async def current_active_user(
-    current_user: User = Depends(current_user),
-) -> User:
-    user = current_user
-    if not user.is_active:
+    if not user:
         raise HTTPException(
-            status_code=400, detail="The user doesn't have valid permissions"
-        )
-    return user
-
-
-async def current_superuser(
-    current_user: User = Depends(current_user),
-) -> User:
-    user = current_user
-    if not user.is_superuser:
-        raise HTTPException(
-            status_code=400, detail="The user doesn't have valid permissions"
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
     return user

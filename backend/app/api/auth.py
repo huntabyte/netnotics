@@ -1,57 +1,39 @@
-from typing import Any, List, Optional, Union
+import time
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi.responses import RedirectResponse
-from pydantic import EmailStr
-from sqlalchemy import func, select
+from pydantic import ValidationError
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from starlette.responses import Response
+from jose import jwt
+from app.core.config import settings
 
 from app.deps.db import get_async_session
 from app.models.user import User
-from app.schemas.user import User as UserSchema
-from app.schemas.user import UserCreate
-from app.schemas import Token
+from app.schemas.requests import RefreshTokenRequest
+from app.schemas.responses import AccessTokenResponse
 from app.core.security import (
-    hash_password,
-    create_access_token,
-    create_refresh_token,
+    ALGORITHM,
+    generate_access_token_response,
     verify_password,
 )
 
 router = APIRouter(prefix="/auth")
 
 
-@router.post("/register", summary="Create new user", response_model=UserSchema)
-async def register_user(
-    *,
-    user_in: UserCreate,
-    session: AsyncSession = Depends(get_async_session),
-) -> Any:
-    """
-    Register a new user account
-    """
-    result = await session.execute(select(User).where(User.email == user_in.email))
-    if result.scalars().first() is not None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A user with this email already exists",
-        )
-    user = user_in.dict()
-    user["hashed_password"] = hash_password(user["password"])
-    del user["password"]
-    user = User(**user)
-    session.add(user)
-    await session.commit()
-    return user
-
-
-@router.post("/login", summary="Create access and refresh tokens", response_model=Token)
+@router.post(
+    "/token",
+    summary="Create access and refresh tokens",
+    response_model=AccessTokenResponse,
+)
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: AsyncSession = Depends(get_async_session),
 ) -> Any:
+    """
+    OAuth2 compatible token, get an access token for future requests using username and password
+    """
     result = await session.execute(select(User).where(User.email == form_data.username))
     user: User | None = result.scalars().first()
 
@@ -65,7 +47,48 @@ async def login(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Incorrect login credentials",
         )
-    return {
-        "access_token": create_access_token(user.email),
-        "refresh_token": create_refresh_token(user.email),
-    }
+    return generate_access_token_response(str(user.email))
+
+
+@router.post(
+    "/refresh", summary="Refresh access token", response_model=AccessTokenResponse
+)
+async def refresh_token(
+    input: RefreshTokenRequest, session: AsyncSession = Depends(get_async_session)
+) -> Any:
+    """
+    OAuth2 Compatible token, get an access token for future requests using refresh token
+    """
+    try:
+        payload = jwt.decode(
+            input.refresh_token, settings.SECRET_KEY, algorithms=[ALGORITHM]
+        )
+    except (jwt.JWTError, ValidationError):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials, unknown error",
+        )
+
+    token_data = AccessTokenResponse(**payload)
+
+    if not token_data.refresh:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials, cannot use access token",
+        )
+    now = int(time.time())
+    if now < token_data.issued_at or now > token_data.expires_at:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validation credentials, token expired or not yet valid",
+        )
+
+    result = await session.execute(select(User).where(User.email == token_data.sub))
+    user: User | None = result.scalars().first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    return generate_access_token_response(str(user.email))

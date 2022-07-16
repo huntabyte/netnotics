@@ -7,7 +7,7 @@ from starlette.responses import Response
 
 from app.deps.db import get_async_session
 from app.deps.request_params import parse_react_admin_params
-from app.deps.users import current_user
+from app.deps.users import get_current_user
 from app.models.device import Device
 from app.models.user import User
 from app.schemas.device import Device as DeviceSchema
@@ -23,7 +23,7 @@ async def get_devices(
     response: Response,
     session: AsyncSession = Depends(get_async_session),
     request_params: RequestParams = Depends(parse_react_admin_params(Device)),
-    user: User = Depends(current_user),
+    user: User = Depends(get_current_user),
 ) -> Any:
     total = await session.scalar(
         select(func.count(Device.id).filter(Device.user_id == user.id))
@@ -51,7 +51,7 @@ async def get_devices(
 async def create_device(
     device_in: DeviceCreate,
     session: AsyncSession = Depends(get_async_session),
-    user: User = Depends(current_user),
+    user: User = Depends(get_current_user),
 ) -> Any:
     device = device_in.dict()
     device["hashed_password"] = hash_password(device["password"])
@@ -68,7 +68,7 @@ async def update_device(
     device_id: int,
     device_in: DeviceUpdate,
     session: AsyncSession = Depends(get_async_session),
-    user: User = Depends(current_user),
+    user: User = Depends(get_current_user),
 ) -> Any:
     device: Optional[Device] = await session.get(Device, device_id)
     if not device or device.user_id != user.id:
@@ -85,7 +85,7 @@ async def update_device(
 async def get_device(
     device_id: int,
     session: AsyncSession = Depends(get_async_session),
-    user: User = Depends(current_user),
+    user: User = Depends(get_current_user),
 ) -> Any:
     device: Optional[Device] = await session.get(Device, device_id)
     if not device or device.user_id != device.id:
@@ -97,7 +97,7 @@ async def get_device(
 async def delete_device(
     device_id: int,
     session: AsyncSession = Depends(get_async_session),
-    user: User = Depends(current_user),
+    user: User = Depends(get_current_user),
 ) -> Any:
     device = Optional[Device] = await session.get(Device, device_id)
     if not device or device.user_id != user.id:

@@ -1,11 +1,18 @@
+from pathlib import Path
 import sys
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseSettings, HttpUrl, PostgresDsn, validator
 from pydantic.networks import AnyHttpUrl
 
+PROJECT_DIR = Path(__file__).parent.parent.parent
+
 
 class Settings(BaseSettings):
+    SECRET_KEY: str
+    SECURITY_BCRYPT_ROUNDS: int = 12
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 11520  # 8 days
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 40320  # 28 days
 
     PROJECT_NAME: str = "netnotics"
 
@@ -43,5 +50,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     #  END: required environment variables
 
+    class Config:
+        env_file = f"{PROJECT_DIR}/.env"
 
-settings = Settings()
+
+settings: Settings = Settings()  # type: ignore
