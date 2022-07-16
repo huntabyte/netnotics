@@ -4,6 +4,7 @@ from pydantic import BaseModel, EmailStr
 
 
 class BaseResponse(BaseModel):
+    # may define additional fields or config shared across responses
     class Config:
         orm_mode = True
 
@@ -21,4 +22,3 @@ class AccessTokenResponse(BaseResponse):
 class UserResponse(BaseResponse):
     id: uuid.UUID
     email: EmailStr
-    name: str
