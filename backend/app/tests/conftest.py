@@ -14,8 +14,8 @@ from app.main import app
 from app.models import Base, User
 
 default_user_id = UUID("b75365d9-7bf9-4f54-add5-aeab333a087b")
-default_user_email = "geralt@wiedzmin.pl"
-default_user_password = "geralt"
+default_user_email = "test@testing.com"
+default_user_password = "testingpassword123"
 default_user_password_hash = security.get_password_hash(default_user_password)
 default_user_access_token = security.create_jwt_token(
     str(default_user_id), 60 * 60 * 24, refresh=False

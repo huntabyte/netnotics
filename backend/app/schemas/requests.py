@@ -1,3 +1,4 @@
+import uuid
 from pydantic import BaseModel, EmailStr
 
 
@@ -17,3 +18,9 @@ class UserUpdatePasswordRequest(BaseRequest):
 class UserCreateRequest(BaseRequest):
     email: EmailStr
     password: str
+
+
+class DeviceCreateRequest(BaseRequest):
+    name: str
+    ip_address: str
+    user_id: uuid.UUID
