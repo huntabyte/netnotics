@@ -23,6 +23,7 @@ class AccessTokenResponse(BaseResponse):
 class UserResponse(BaseResponse):
     id: uuid.UUID
     email: EmailStr
+    name: str
 
 
 class DeviceResponse(BaseResponse):

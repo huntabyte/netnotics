@@ -38,6 +38,7 @@ class User:
     email: str = field(
         metadata={"sa": Column(String(254), nullable=False, unique=True, index=True)}
     )
+    name: str = field(metadata={"sa": Column(String(255))})
     hashed_password: str = field(metadata={"sa": Column(String(128), nullable=False)})
 
 

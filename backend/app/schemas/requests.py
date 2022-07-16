@@ -18,6 +18,7 @@ class UserUpdatePasswordRequest(BaseRequest):
 class UserCreateRequest(BaseRequest):
     email: EmailStr
     password: str
+    name: str
 
 
 class DeviceCreateRequest(BaseRequest):
