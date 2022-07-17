@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -40,3 +40,27 @@ async def get_all_devices(
         select(Device).where(Device.user_id == current_user.id).order_by(Device.name)
     )
     return devices.scalars().all()
+
+
+@router.get("/{device_id}", response_model=DeviceResponse, status_code=200)
+async def get_device(
+    device_id: int,
+    session: AsyncSession = Depends(deps.get_session),
+    current_user: User = Depends(deps.get_current_user),
+) -> Device:
+
+    result = await session.execute(select(Device).where(Device.id == device_id))
+    device: Device | None = result.scalars().first()
+
+    if device is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Device not found"
+        )
+
+    if device.user_id == current_user.id:
+        return device
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Insufficient permissions to access device",
+        )

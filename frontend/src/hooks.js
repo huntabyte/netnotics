@@ -14,6 +14,7 @@ export async function handle({ event, resolve }) {
 		method: 'GET'
 	});
 	const data = await userSession.json();
+	console.log('Got session');
 
 	if (!data.authenticated) {
 		event.locals.user.authenticated = false;
@@ -23,12 +24,13 @@ export async function handle({ event, resolve }) {
 	}
 
 	const response = await resolve(event);
+	console.log('Got response');
+	console.log(response);
 
 	return response;
 }
 
 export function getSession(event) {
-	console.log(event.locals.user);
 	if (!event.locals.user.authenticated) {
 		return {
 			authenticated: event.locals.user.authenticated
