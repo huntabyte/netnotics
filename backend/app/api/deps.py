@@ -21,7 +21,6 @@ async def get_current_user(
 ) -> User:
     try:
         session_id = request.cookies.get("session_id")
-        print(session_id)
         if session_id:
             result = await session.execute(
                 select(UserSession).where(UserSession.id == session_id)

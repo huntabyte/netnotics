@@ -1,6 +1,6 @@
 import { browser } from '$app/env';
 
-const BASE_URL = 'http://localhost:8000/api/v1';
+const BASE_URL = 'http://localhost:8000';
 
 export function browserGet(key) {
 	if (browser) {
@@ -64,4 +64,12 @@ export async function post(fetch, path, body) {
 		console.log(err);
 		throw customError ? err : { id: '', message: 'An unknown error has occurred' };
 	}
+}
+
+export async function get(fetch, path) {
+	const opts = { method: 'GET', headers: {}, credentials: 'include' };
+
+	const res = await fetch(`${BASE_URL}${path}`, opts);
+	const data = await res.json();
+	return data;
 }
