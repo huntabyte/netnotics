@@ -16,3 +16,4 @@ This is one of the largest projects I've taken on solo. A full-stack single page
 - [ ] Edit inventory/devices (backend & frontend)
 - [ ] Programmatically pull device state (will test with Cisco sandboxes)
 - [ ] Rewrite tests to meet session-based authentication requirements :O
+- [ ] Containerize full-stack environment

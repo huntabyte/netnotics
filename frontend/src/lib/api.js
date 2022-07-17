@@ -11,19 +11,28 @@ export async function get(fetch, path) {
 	return data;
 }
 
-export async function post(fetch, path, body) {
-	const response = await fetch(`${BASE_URL}${path}`, {
-		method: 'POST',
-		credentials: 'include',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(body)
-	});
+export async function post(fetch, path, body = null) {
+	if (body) {
+		const response = await fetch(`${BASE_URL}${path}`, {
+			method: 'POST',
+			credentials: 'include',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(body)
+		});
+		const data = await response.json();
 
-	const data = await response.json();
+		return data;
+	} else {
+		const response = await fetch(`${BASE_URL}${path}`, {
+			method: 'POST',
+			credentials: 'include'
+		});
+		const data = await response.json();
 
-	return data;
+		return data;
+	}
 }
 
 export async function remove(fetch, path) {

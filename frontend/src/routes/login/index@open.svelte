@@ -1,3 +1,17 @@
+<script context="module">
+	export async function load({ session }) {
+		if (session.authenticated === true) {
+			return {
+				status: 302,
+				redirect: '/dashboard'
+			};
+		}
+		return {
+			props: {}
+		};
+	}
+</script>
+
 <script>
 	let email;
 	let password;
@@ -10,12 +24,16 @@
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded'
 			},
-			credentials: 'include',
 			body: new URLSearchParams({
 				username: email,
 				password: password
-			})
+			}),
+			credentials: 'include'
 		});
+		const data = await res.json();
+		if (data.message === 'Success') {
+			window.location.replace('/');
+		}
 	}
 </script>
 

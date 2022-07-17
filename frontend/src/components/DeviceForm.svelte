@@ -1,6 +1,6 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { devices } from '$lib/stores/devices';
+	import { DeviceStore } from '$lib/stores/DeviceStore';
 	import { browser } from '$app/env';
 
 	let name, ipAddress, site, vendor, model, operatingSystem;
@@ -25,11 +25,11 @@
 		});
 
 		const data = await res.json();
-
-		devices.set([data, ...$devices]);
-		console.log('Got here!');
+		// save poll to store
+		DeviceStore.update((currentDevices) => {
+			return [data, ...currentDevices];
+		});
 		goto('/devices');
-		console.log('Should have been redirected by now.');
 	}
 </script>
 
@@ -53,7 +53,6 @@
 							type="text"
 							name="name"
 							id="name"
-							autocomplete="given-name"
 							class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md"
 						/>
 					</div>
@@ -71,7 +70,6 @@
 							type="text"
 							name="ip-address"
 							id="ip-address"
-							autocomplete="family-name"
 							class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md"
 						/>
 					</div>
@@ -141,13 +139,16 @@
 						Operating System
 					</label>
 					<div class="mt-1 sm:mt-0 sm:col-span-2">
-						<input
+						<select
 							bind:value={operatingSystem}
-							type="text"
-							name="operating-system"
-							id="operating-system"
-							class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md"
-						/>
+							id="vendor"
+							name="vendor"
+							class="max-w-lg block focus:ring-indigo-500 focus:border-indigo-500 w-full shadow-sm sm:max-w-xs sm:text-sm border-gray-300 rounded-md"
+						>
+							<option>IOS-XE</option>
+							<option>IOS</option>
+							<option>JUNOS</option>
+						</select>
 					</div>
 				</div>
 			</div>

@@ -117,7 +117,7 @@ async def logout_user(
     request: Request,
     session: AsyncSession = Depends(deps.get_session),
 ):
-    """Login user and return session cookie"""
+    """Logout user and return empty cookie"""
     try:
         cookie_id = request.cookies.get("session_id")
         print(cookie_id)
@@ -134,8 +134,7 @@ async def logout_user(
 
     response.set_cookie(
         key="session_id",
-        value="",
-        expires="",
+        value=None,
         path="/",
         httponly=True,
     )

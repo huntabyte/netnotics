@@ -8,13 +8,14 @@ export async function handle({ event, resolve }) {
 
 	if (!cookies.session_id) {
 		event.locals.user.authenticated = false;
+		const response = await resolve(event);
+		return response;
 	}
 
 	const userSession = await fetch(`http://localhost:8000/auth/session/${cookies.session_id}`, {
 		method: 'GET'
 	});
 	const data = await userSession.json();
-	console.log('Got session');
 
 	if (!data.authenticated) {
 		event.locals.user.authenticated = false;
@@ -24,8 +25,6 @@ export async function handle({ event, resolve }) {
 	}
 
 	const response = await resolve(event);
-	console.log('Got response');
-	console.log(response);
 
 	return response;
 }

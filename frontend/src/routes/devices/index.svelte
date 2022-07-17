@@ -1,48 +1,28 @@
-<script context="module">
-	export async function load({ fetch, session }) {
-		if (!session.authenticated) {
-			return {
-				status: 302,
-				redirect: '/login'
-			};
-		}
-		const url = `http://localhost:8000/devices`;
-		const res = await fetch(url, {
-			credentials: 'include'
-		});
-		const data = await res.json();
-		return {
-			props: {
-				loadedDevices: data
-			}
-		};
-	}
-</script>
-
 <script>
 	import title from '$lib/stores/title';
-	import DeviceTable from '../../components/DeviceTable.svelte';
-	import { devices } from '$lib/stores/devices';
+	import * as api from '$lib/api';
+	import { DeviceStore } from '$lib/stores/DeviceStore';
 	import { onMount } from 'svelte';
-	export let loadedDevices;
+	import DeviceRow from '../../components/DeviceRow.svelte';
 
 	$title = 'Devices';
 	let searchTerm = '';
-	let filteredDevices = [];
+	let filteredDevices = $DeviceStore;
 
-	onMount(() => {
-		devices.set(loadedDevices);
+	onMount(async () => {
+		const data = await api.get(fetch, '/devices');
+		DeviceStore.update((currentDevices) => {
+			return data;
+		});
 	});
 
 	$: {
 		if (searchTerm) {
-			filteredDevices = loadedDevices.filter((item) =>
+			filteredDevices = $DeviceStore.filter((item) =>
 				item.name.toLowerCase().includes(searchTerm.toLowerCase())
 			);
-			devices.set(filteredDevices);
 		} else {
-			filteredDevices = [...loadedDevices];
-			devices.set(filteredDevices);
+			filteredDevices = [...$DeviceStore];
 		}
 	}
 </script>
@@ -51,7 +31,7 @@
 	<title>Devices | Netnotics</title>
 </svelte:head>
 
-<div class="px-4 sm:px-6 lg:px-8">
+<div class="px-2 sm:px-4 lg:px-2">
 	<input
 		class="w-1/2 rounded-md text-lg pg-4 border-2 border-gray-200 mb-4"
 		type="text"
@@ -71,5 +51,61 @@
 			>
 		</div>
 	</div>
-	<DeviceTable />
+	<div class="mt-8 flex flex-col">
+		<div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+			<div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+				<div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+					<table class="min-w-full divide-y divide-gray-300">
+						<thead class="bg-gray-50">
+							<tr>
+								<th
+									scope="col"
+									class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+									>Name</th
+								>
+								<th
+									scope="col"
+									class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+									>IP Address</th
+								>
+								<th
+									scope="col"
+									class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+									>Site</th
+								>
+								<th
+									scope="col"
+									class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+									>Model</th
+								>
+								<th
+									scope="col"
+									class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+									>Vendor</th
+								>
+								<th
+									scope="col"
+									class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+									>Operating System</th
+								>
+								<th
+									scope="col"
+									class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+									>OS Version</th
+								>
+								<th scope="col" class="relative whitespace-nowrap py-3.5 pl-3 pr-4 sm:pr-6">
+									<span class="sr-only">Edit</span>
+								</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-gray-200 bg-white">
+							{#each filteredDevices as device (device.id)}
+								<DeviceRow {device} />
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>

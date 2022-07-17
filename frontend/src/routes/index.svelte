@@ -1,7 +1,8 @@
-<script>
-	import title from '$lib/stores/title';
-
-	$title = 'Netnotics';
+<script context="module">
+	export async function load() {
+		return {
+			status: 302,
+			redirect: '/dashboard'
+		};
+	}
 </script>
-
-<h1 class="text-xl">Welcome to Netnotics</h1>
