@@ -1,8 +1,6 @@
 <script>
 	import { devices } from '$lib/stores/devices';
 	import DeviceRow from './DeviceRow.svelte';
-
-	export let deviceList = $devices;
 </script>
 
 <div class="mt-8 flex flex-col">
@@ -53,7 +51,7 @@
 						</tr>
 					</thead>
 					<tbody class="divide-y divide-gray-200 bg-white">
-						{#each deviceList as device}
+						{#each $devices as device}
 							<DeviceRow {device} />
 						{/each}
 					</tbody>

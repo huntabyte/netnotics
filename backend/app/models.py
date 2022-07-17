@@ -70,4 +70,19 @@ class Device:
         metadata={"sa": Column(ForeignKey("users.id", ondelete="CASCADE"))}
     )
     name: str = field(metadata={"sa": Column(String(255), nullable=False)})
-    ip_address: str = field(metadata={"sa": Column(String(128), nullable=False)})
+    ip_address: str = field(
+        metadata={"sa": Column(String(128), nullable=True, default=None)}
+    )
+    site: str = field(metadata={"sa": Column(String(255), nullable=True, default=None)})
+    vendor: str = field(
+        metadata={"sa": Column(String(255), nullable=True, default=None)}
+    )
+    model: str = field(
+        metadata={"sa": Column(String(255), nullable=True, default=None)}
+    )
+    operating_system: str = field(
+        metadata={"sa": Column(String(255), nullable=True, default=None)}
+    )
+    os_version: str = field(
+        metadata={"sa": Column(String(255), nullable=True, default=None)}
+    )

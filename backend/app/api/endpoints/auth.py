@@ -96,7 +96,7 @@ async def login_user(
 
     await session.execute(delete(UserSession).where(UserSession.user_id == user.id))
     await session.commit()
-    user_session = UserSession(user_id=user.id, expires_at=int(time.time()) + 1152)
+    user_session = UserSession(user_id=user.id, expires_at=int(time.time()) + 11520)
     session.add(user_session)
     await session.commit()
 

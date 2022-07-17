@@ -1,4 +1,4 @@
-import uuid
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 
@@ -24,4 +24,8 @@ class UserCreateRequest(BaseRequest):
 class DeviceCreateRequest(BaseRequest):
     name: str
     ip_address: str
-    user_id: uuid.UUID
+    site: Optional[str] = None
+    vendor: Optional[str] = None
+    model: Optional[str] = None
+    operating_system: Optional[str] = None
+    os_version: Optional[str] = None

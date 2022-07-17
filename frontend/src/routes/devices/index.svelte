@@ -23,21 +23,28 @@
 	import title from '$lib/stores/title';
 	import DeviceTable from '../../components/DeviceTable.svelte';
 	import { devices } from '$lib/stores/devices';
+	import { onMount } from 'svelte';
 	export let loadedDevices;
-	devices.set(loadedDevices);
 
 	$title = 'Devices';
 	let searchTerm = '';
+	let filteredDevices = [];
 
-	// $: {
-	// 	if (searchTerm) {
-	// 		filteredDevices = devices.filter((item) =>
-	// 			item.name.toLowerCase().includes(searchTerm.toLowerCase())
-	// 		);
-	// 	} else {
-	// 		filteredDevices = [...devices];
-	// 	}
-	// }
+	onMount(() => {
+		devices.set(loadedDevices);
+	});
+
+	$: {
+		if (searchTerm) {
+			filteredDevices = loadedDevices.filter((item) =>
+				item.name.toLowerCase().includes(searchTerm.toLowerCase())
+			);
+			devices.set(filteredDevices);
+		} else {
+			filteredDevices = [...loadedDevices];
+			devices.set(filteredDevices);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -57,10 +64,10 @@
 			<p class="mt-2 text-sm text-gray-700">Device Data</p>
 		</div>
 		<div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-			<button
-				type="button"
+			<a
+				href="/devices/add"
 				class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
-				>Add Device</button
+				>Add Device</a
 			>
 		</div>
 	</div>

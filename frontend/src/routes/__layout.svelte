@@ -1,3 +1,19 @@
+<script context="module">
+	export async function load({ session }) {
+		if (!session.authenticated) {
+			return {
+				status: 302,
+				redirect: '/login'
+			};
+		}
+		return {
+			props: {
+				id: session.user_id
+			}
+		};
+	}
+</script>
+
 <script>
 	import '../app.css';
 	import title from '$lib/stores/title';

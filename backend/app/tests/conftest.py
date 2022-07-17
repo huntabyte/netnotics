@@ -1,4 +1,5 @@
 import asyncio
+import time
 from typing import AsyncGenerator
 from uuid import UUID
 
@@ -11,15 +12,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core import config, security
 from app.core.session import async_engine, async_session
 from app.main import app
-from app.models import Base, User
+from app.models import Base, User, UserSession
 
 default_user_id = UUID("b75365d9-7bf9-4f54-add5-aeab333a087b")
 default_user_email = "test@testing.com"
 default_user_password = "testingpassword123"
+default_user_name = "Test Name"
 default_user_password_hash = security.get_password_hash(default_user_password)
 default_user_access_token = security.create_jwt_token(
     str(default_user_id), 60 * 60 * 24, refresh=False
 )[0]
+
+default_user_session_id = UUID("b75365d9-7bf9-4f54-add5-aeab333a087c")
+default_user_session_user_id = default_user_id
+default_user_session_expires_at = int(time.time()) + 11520
 
 
 @pytest.fixture(scope="session")
@@ -71,11 +77,19 @@ async def default_user(test_db_setup_sessionmaker) -> User:
             new_user = User(
                 email=default_user_email,
                 hashed_password=default_user_password_hash,
+                name=default_user_name,
             )
             new_user.id = default_user_id
             session.add(new_user)
             await session.commit()
             await session.refresh(new_user)
+            new_session = UserSession(
+                user_id=default_user_id, expires_at=default_user_session_expires_at
+            )
+            new_session.id = default_user_session_id
+            await session.commit()
+            await session.refresh(new_session)
+
             return new_user
         return user
 
@@ -83,3 +97,8 @@ async def default_user(test_db_setup_sessionmaker) -> User:
 @pytest.fixture
 def default_user_headers(default_user: User):
     return {"Authorization": f"Bearer {default_user_access_token}"}
+
+
+@pytest.fixture
+def default_user_cookie():
+    return {"session_id": f"{default_user_session_id}"}
