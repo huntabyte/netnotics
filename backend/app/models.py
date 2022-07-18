@@ -73,6 +73,7 @@ class Device:
     ip_address: str = field(
         metadata={"sa": Column(String(128), nullable=True, default=None)}
     )
+    fqdn: str = field(metadata={"sa": Column(String(255), nullable=True, default=None)})
     site: str = field(metadata={"sa": Column(String(255), nullable=True, default=None)})
     vendor: str = field(
         metadata={"sa": Column(String(255), nullable=True, default=None)}
@@ -84,5 +85,11 @@ class Device:
         metadata={"sa": Column(String(255), nullable=True, default=None)}
     )
     os_version: str = field(
+        metadata={"sa": Column(String(255), nullable=True, default=None)}
+    )
+    username: str = field(
+        metadata={"sa": Column(String(255), nullable=True, default=None)}
+    )
+    hashed_password: str = field(
         metadata={"sa": Column(String(255), nullable=True, default=None)}
     )

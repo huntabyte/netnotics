@@ -23,9 +23,12 @@ class UserCreateRequest(BaseRequest):
 
 class DeviceCreateRequest(BaseRequest):
     name: str
-    ip_address: str
+    ip_address: Optional[str] = None
+    fqdn: Optional[str] = None
     site: Optional[str] = None
     vendor: Optional[str] = None
     model: Optional[str] = None
     operating_system: Optional[str] = None
     os_version: Optional[str] = None
+    username: Optional[str] = None
+    password: Optional[str] = None

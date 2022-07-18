@@ -29,7 +29,8 @@ class UserResponse(BaseResponse):
 class DeviceResponse(BaseResponse):
     id: int
     name: str
-    ip_address: str
+    ip_address: Optional[str] = None
+    fqdn: Optional[str] = None
     user_id: uuid.UUID
     site: Optional[str] = None
     vendor: Optional[str] = None
@@ -41,3 +42,4 @@ class DeviceResponse(BaseResponse):
 class SessionResponse(BaseResponse):
     authenticated: bool
     user_id: Optional[uuid.UUID] = None
+    user: Optional[UserResponse] = None

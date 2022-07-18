@@ -54,7 +54,12 @@ def create_jwt_token(subject: str | int, exp_secs: int, refresh: bool):
 
 
 def generate_access_token_response(subject: str | int):
-    """Generate tokens and return AccessTokenResponse"""
+    """
+    Generate tokens and return AccessTokenResponse
+
+    Args:
+        subject: anything unique to user, id or email etc.
+    """
     access_token, expires_at, issued_at = create_jwt_token(
         subject, ACCESS_TOKEN_EXPIRE_SECS, refresh=False
     )
@@ -77,6 +82,10 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
     Applies passlib context based on bcrypt algorithm on plain passoword.
     It takes about 0.3s for default 12 rounds of SECURITY_BCRYPT_DEFAULT_ROUNDS.
+
+    Args:
+        plain_password: plain text password to be verified
+        hashed_password: stored hashed password
     """
     return PWD_CONTEXT.verify(plain_password, hashed_password)
 
@@ -86,5 +95,8 @@ def get_password_hash(password: str) -> str:
 
     Applies passlib context based on bcrypt algorithm on plain passoword.
     It takes about 0.3s for default 12 rounds of SECURITY_BCRYPT_DEFAULT_ROUNDS.
+
+    Args:
+        plain_password: plain text password to be verified
     """
     return PWD_CONTEXT.hash(password)

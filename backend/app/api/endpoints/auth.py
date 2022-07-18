@@ -159,4 +159,13 @@ async def get_session(
     if user_session is None:
         return {"authenticated": False}
 
-    return {"authenticated": True, "user_id": user_session.user_id}
+    try:
+        result = await session.execute(
+            select(User).where(User.id == user_session.user_id)
+        )
+        user: User | None = result.scalars().first()
+        raise Exception
+    except Exception as error:
+        print(error)
+
+    return {"authenticated": True, "user_id": user_session.user_id, "user": user}

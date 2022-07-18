@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api import deps
+from app.core.security import get_password_hash
 from app.models import Device, User
 from app.schemas.requests import DeviceCreateRequest
 from app.schemas.responses import DeviceResponse
@@ -22,15 +23,23 @@ async def create_device(
     """
 
     try:
+        if new_device.password:
+            hashed_password = get_password_hash(new_device.password)
+        else:
+            hashed_password = None
+
         device = Device(
             user_id=current_user.id,
             name=new_device.name,
             ip_address=new_device.ip_address,
             site=new_device.site,
+            fqdn=new_device.fqdn,
             vendor=new_device.vendor,
             model=new_device.model,
             operating_system=new_device.operating_system,
             os_version=new_device.os_version,
+            username=new_device.username,
+            hashed_password=hashed_password,
         )
 
         session.add(device)
