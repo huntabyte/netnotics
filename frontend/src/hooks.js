@@ -22,6 +22,8 @@ export async function handle({ event, resolve }) {
 	} else {
 		event.locals.user.authenticated = true;
 		event.locals.user.id = data.user_id;
+		event.locals.user.name = data.user.name;
+		event.locals.user.email = data.user.email;
 	}
 
 	const response = await resolve(event);
@@ -38,6 +40,8 @@ export function getSession(event) {
 
 	return {
 		authenticated: event.locals.user.authenticated,
-		user_id: event.locals.user.id
+		user_id: event.locals.user.id,
+		name: event.locals.user.name,
+		email: event.locals.user.email
 	};
 }

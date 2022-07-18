@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 
-export const DeviceStore = writable([
+const DeviceStore = writable([
 	{
 		id: null,
 		name: null,
@@ -12,3 +12,4 @@ export const DeviceStore = writable([
 		os_version: null
 	}
 ]);
+export default DeviceStore;
