@@ -1,35 +1,68 @@
 version: "3.9"
 
 services:
-  postgres:
+  db:
     image: postgres:14
     restart: always
     env_file:
-      - .env
+      - ./backend/.env
+    environment:
+      - POSTGRES_DB=${DEFAULT_DATABASE_DB}
+      - POSTGRES_USER=${DEFAULT_DATABASE_USER}
+      - POSTGRES_PASSWORD=${DEFAULT_DATABASE_PASSWORD}
     healthcheck:
       test: pg_isready -U postgres
       interval: 3s
       timeout: 2s
       retries: 3
-
-  backend:
-    build:
-      context: backend
     ports:
-      - "8000:8000"
-    env_file: .env
+      - "${DEFAULT_DATABASE_PORT}:5432"
+
+  test-db:
+    image: postgres:14
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      - POSTGRES_DB=${TEST_DATABASE_DB}
+      - POSTGRES_USER=${TEST_DATABASE_USER}
+      - POSTGRES_PASSWORD=${TEST_DATABASE_PASSWORD}
+    ports:
+      - "${TEST_DATABASE_PORT}:5432"
+
+  # backend:
+  #   build:
+  #     context: backend
+  #     dockerfile: backend.dev.dockerfile
+  #   ports:
+  #     - "8000:8000"
+  #   env_file: ./backend/.env
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   command: uvicorn app.main:app --reload --host 0.0.0.0
+
+  # frontend:
+  #   image: frontend
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: frontend.dev.dockerfile
+  #   restart: on-failure
+  #   ports:
+  #     - 3000:3000
+  #     - 24678:24678
+  #   volumes:
+  #     - ./frontend:/usr/src/app
+  #   depends_on:
+  #     - backend
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
     depends_on:
-      postgres:
-        condition: service_healthy
-          # frontend:
-          #build:
-          #context: frontend
-          #ports:
-          #- "3000:80"
-          #volumes:
-          #- ./frontend:/app:delegated
-          #environment:
-          #- NODE_ENV=production
+      - db
 
 volumes:
   app-db-data:

@@ -13,7 +13,6 @@ alembic revision --autogenerate -m "migration_name"
 # apply all migrations
 alembic upgrade head
 """
-
 import uuid
 from dataclasses import dataclass, field
 
@@ -76,13 +75,25 @@ class Device:
     fqdn: str = field(metadata={"sa": Column(String(255), nullable=True, default=None)})
     site: str = field(metadata={"sa": Column(String(255), nullable=True, default=None)})
     vendor: str = field(
-        metadata={"sa": Column(String(255), nullable=True, default=None)}
+        metadata={
+            "sa": Column(
+                String(255),
+                nullable=True,
+                default=None,
+            )
+        }
     )
     model: str = field(
         metadata={"sa": Column(String(255), nullable=True, default=None)}
     )
     operating_system: str = field(
-        metadata={"sa": Column(String(255), nullable=True, default=None)}
+        metadata={
+            "sa": Column(
+                String(255),
+                nullable=True,
+                default=None,
+            )
+        }
     )
     os_version: str = field(
         metadata={"sa": Column(String(255), nullable=True, default=None)}
@@ -90,6 +101,6 @@ class Device:
     username: str = field(
         metadata={"sa": Column(String(255), nullable=True, default=None)}
     )
-    hashed_password: str = field(
+    password: str = field(
         metadata={"sa": Column(String(255), nullable=True, default=None)}
     )

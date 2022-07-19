@@ -1,10 +1,10 @@
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api import deps
-from app.core.security import get_password_hash
+from app.devices.restconf import RESTCONF
 from app.models import Device, User
 from app.schemas.requests import DeviceCreateRequest
 from app.schemas.responses import DeviceResponse
@@ -23,11 +23,6 @@ async def create_device(
     """
 
     try:
-        if new_device.password:
-            hashed_password = get_password_hash(new_device.password)
-        else:
-            hashed_password = None
-
         device = Device(
             user_id=current_user.id,
             name=new_device.name,
@@ -39,7 +34,7 @@ async def create_device(
             operating_system=new_device.operating_system,
             os_version=new_device.os_version,
             username=new_device.username,
-            hashed_password=hashed_password,
+            password=new_device.password,
         )
 
         session.add(device)
@@ -80,7 +75,11 @@ async def get_device(
     current_user: User = Depends(deps.get_current_user),
 ) -> Device:
 
-    result = await session.execute(select(Device).where(Device.id == device_id))
+    result = await session.execute(
+        select(Device).where(
+            and_(Device.id == device_id, Device.user_id == current_user.id)
+        )
+    )
     device: Device | None = result.scalars().first()
 
     if device is None:
@@ -88,13 +87,7 @@ async def get_device(
             status_code=status.HTTP_404_NOT_FOUND, detail="Device not found"
         )
 
-    if device.user_id == current_user.id:
-        return device
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Insufficient permissions to access device",
-        )
+    return device
 
 
 @router.delete("/{device_id}", status_code=status.HTTP_200_OK)
@@ -105,7 +98,35 @@ async def delete_device(
 ) -> Any:
     """Delete a device by ID"""
 
-    result = await session.execute(select(Device).where(Device.id == device_id))
+    result = await session.execute(
+        select(Device).where(
+            and_(Device.id == device_id, Device.user_id == current_user.id)
+        )
+    )
+    device: Device | None = result.scalars().first()
+
+    if device is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Device not found"
+        )
+    await session.delete(device)
+    await session.commit()
+    return {"message": "Device removed successfully"}
+
+
+@router.get("/{device_id}/os-version")
+async def get_os_version(
+    device_id: int,
+    session: AsyncSession = Depends(deps.get_session),
+    current_user: User = Depends(deps.get_current_user),
+):
+    """Return the device's OS version"""
+
+    result = await session.execute(
+        select(Device).where(
+            and_(Device.id == device_id, Device.user_id == current_user.id)
+        )
+    )
     device: Device | None = result.scalars().first()
 
     if device is None:
@@ -113,11 +134,48 @@ async def delete_device(
             status_code=status.HTTP_404_NOT_FOUND, detail="Device not found"
         )
 
-    if device.user_id != current_user.id:
+    device_client = RESTCONF(
+        host=device.fqdn, username=device.username, password=device.password
+    )
+    version = await device_client.get_os_version()
+    if version:
+        return {"version": version}
+    else:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Invalid permissions to remove the device",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not fetch the OS version for the given device.",
         )
-    await session.delete(device)
-    await session.commit()
-    return {"message": "Device removed successfully"}
+
+
+@router.get("/{device_id}/restconf")
+async def get_restconf_data(
+    device_id: int,
+    session: AsyncSession = Depends(deps.get_session),
+    current_user: User = Depends(deps.get_current_user),
+    xpath: str = None,
+):
+    """
+    Returns result of device query via RESTCONF with a custom xpath query param
+    """
+    if xpath is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A valid xpath parameter must be specified",
+        )
+
+    result = await session.execute(
+        select(Device).where(
+            and_(Device.id == device_id, Device.user_id == current_user.id)
+        )
+    )
+    device: Device | None = result.scalars().first()
+
+    if device is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Device not found"
+        )
+
+    device_client = RESTCONF(
+        host=device.fqdn, username=device.username, password=device.password
+    )
+    return await device_client.get_xpath_data(xpath=f"/{xpath}")

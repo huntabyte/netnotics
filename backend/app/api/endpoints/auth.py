@@ -147,6 +147,7 @@ async def get_session(
     session_id: uuid.UUID, session: AsyncSession = Depends(deps.get_session)
 ):
     """Get status of a session"""
+    user_session = None
     try:
         result = await session.execute(
             select(UserSession).where(UserSession.id == session_id)

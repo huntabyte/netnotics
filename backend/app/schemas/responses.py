@@ -43,3 +43,11 @@ class SessionResponse(BaseResponse):
     authenticated: bool
     user_id: Optional[uuid.UUID] = None
     user: Optional[UserResponse] = None
+
+
+class RESTCONFResponse(BaseResponse):
+    pass
+
+
+class DeviceOSVersionResponse(RESTCONFResponse):
+    version: str
