@@ -1,6 +1,5 @@
 <script>
 	import DeviceRow from './DeviceRow.svelte';
-	import InterfaceRow from './InterfaceRow.svelte';
 	export let filteredDevices;
 </script>
 
