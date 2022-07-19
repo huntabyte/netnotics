@@ -1,6 +1,8 @@
-# Netnotics - Infrastructure Management SPA
+# Netnotics - Infrastructure Management Web App
 
 This is one of the largest projects I've taken on solo. A full-stack single page web application to make infrastructure automation and management a breeze for IT administrators.
+
+*Live Demo with current progress coming soon*
 
 ### Current Stack
 - Backend: Python (FastAPI & httpx)
