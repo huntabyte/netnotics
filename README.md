@@ -20,5 +20,8 @@ This is one of the largest projects I've taken on solo. A full-stack single page
 - [ ] Rewrite tests to meet session-based authentication requirements :O
 - [ ] Containerize full-stack environment
 
+### Feature Ideas:
+- [ ] Device Details (Device Name, Device Type, IOS Version, Uptime, Model, Vendor)
+
 ### Bold Feature Ideas:
 - [ ] Give users the ability to define custom columns using xpath filters (we'll see about this one)

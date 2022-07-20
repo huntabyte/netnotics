@@ -14,7 +14,9 @@
 </script>
 
 <tr>
-	<td>{device.name || '-'}</td>
+	<td class="hover:text-primary"
+		><a sveltekit:prefetch href="/devices/{device.id}">{device.name || '-'}</a></td
+	>
 	<td>{device.ip_address || '-'}</td>
 	<td>{device.site || '-'}</td>
 	<td>{device.model || '-'}</td>
