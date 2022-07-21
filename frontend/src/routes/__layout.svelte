@@ -24,6 +24,8 @@
 	import TopBar from '../components/Layout/TopBar.svelte';
 	import UserStore from '$lib/stores/UserStore';
 	import { onMount } from 'svelte';
+	import { faHouse, faServer } from '@fortawesome/free-solid-svg-icons';
+
 	export let name;
 	export let id;
 	export let email;
@@ -43,11 +45,13 @@
 	let navLinks = [
 		{
 			title: 'Dashboard',
-			href: '/dashboard'
+			href: '/dashboard',
+			icon: faHouse
 		},
 		{
 			title: 'Devices',
-			href: '/devices'
+			href: '/devices',
+			icon: faServer
 		}
 	];
 </script>
@@ -67,7 +71,7 @@
 				</div>
 				<div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
 					<div class="py-4">
-						<div class="card-normal w-full bg-base-100 shadow-xl">
+						<div class="card-normal w-full bg-base-100 shadow-xl rounded-md">
 							<div class="card-body">
 								<slot />
 							</div>

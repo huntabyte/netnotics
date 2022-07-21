@@ -55,8 +55,8 @@
 		</div>
 
 		<div class="stat">
-			<div class="stat-figure {item['admin-status'] === 'up' ? 'text-success' : 'text-error'}">
-				<Fa size="2x" icon={item['admin-status'] === 'up' ? faArrowUp : faArrowDown} />
+			<div class="stat-figure {item['oper-status'] === 'up' ? 'text-success' : 'text-error'}">
+				<Fa size="2x" icon={item['oper-status'] === 'up' ? faArrowUp : faArrowDown} />
 			</div>
 			<div class="stat-title">Oper Status</div>
 			<div
