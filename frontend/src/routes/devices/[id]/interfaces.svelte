@@ -2,24 +2,33 @@
 	export async function load({ fetch, params }) {
 		const id = params.id;
 		const url = `http://localhost:8000/devices/${id}`;
-		let res = await fetch(url, {
+		const resOne = await fetch(url, {
 			method: 'GET',
 			credentials: 'include'
 		});
-		const device = await res.json();
+		const device = await resOne.json();
 
-		res = await fetch(`http://localhost:8000/devices/${id}/restconf?xpath=interfaces-state`, {
-			method: 'GET',
-			credentials: 'include'
-		});
-		let data = await res.json();
+		const resTwo = await fetch(
+			`http://localhost:8000/devices/${id}/restconf?xpath=interfaces-state`,
+			{
+				method: 'GET',
+				credentials: 'include'
+			}
+		);
+		let data = await resTwo.json();
 		const interfaces = data['ietf-interfaces:interfaces-state']['interface'];
 
+		if (resOne.ok && resTwo.ok) {
+			return {
+				props: {
+					device,
+					interfaces
+				}
+			};
+		}
 		return {
-			props: {
-				device,
-				interfaces
-			}
+			status: resTwo.status,
+			error: new Error('Could not retrieve device interface information')
 		};
 	}
 </script>
@@ -30,6 +39,7 @@
 	export let device;
 	export let interfaces;
 	import title from '$lib/stores/title';
+	import Error from '../../__error.svelte';
 
 	$title = device.name.toUpperCase();
 </script>

@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
 
-const title = writable('Dashboard');
+const title = writable('');
 
 export default title;

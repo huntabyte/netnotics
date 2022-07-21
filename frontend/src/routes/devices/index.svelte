@@ -1,18 +1,39 @@
+<script context="module">
+	export async function load({ fetch }) {
+		const res = await fetch('http://localhost:8000/devices', {
+			method: 'GET',
+			credentials: 'include'
+		});
+		const devices = await res.json();
+
+		if (res.ok) {
+			return {
+				props: {
+					devices
+				}
+			};
+		}
+		return {
+			status: res.status,
+			error: new Error('Could not fetch devices')
+		};
+	}
+</script>
+
 <script>
 	import title from '$lib/stores/title';
-	import * as api from '$lib/api';
 	import DeviceStore from '$lib/stores/DeviceStore';
 	import { onMount } from 'svelte';
 	import DeviceTable from '../../components/DeviceTable.svelte';
+	export let devices;
 
 	$title = 'Devices';
 	let searchTerm = '';
 	let filteredDevices = $DeviceStore;
 
 	onMount(async () => {
-		const data = await api.get(fetch, '/devices');
 		DeviceStore.update((currentDevices) => {
-			return data;
+			return devices;
 		});
 	});
 

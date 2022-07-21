@@ -8,10 +8,14 @@
 		});
 		const device = await res.json();
 
+		if (res.ok) {
+			return {
+				props: { device }
+			};
+		}
 		return {
-			props: {
-				device
-			}
+			status: res.status,
+			error: new Error('Could not fetch the device')
 		};
 	}
 </script>
