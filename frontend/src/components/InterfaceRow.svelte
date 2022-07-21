@@ -1,36 +1,48 @@
 <script>
-	import DeviceStore from '$lib/stores/DeviceStore';
-	export let device;
-	import Fa from 'svelte-fa/src/fa.svelte';
-	import { faTrashCan, faPen } from '@fortawesome/free-solid-svg-icons/index.es';
-	import { remove } from '$lib/api';
+	import moment from 'moment';
+	export let item;
+	import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
+	import Icon from './Icon.svelte';
 
-	async function handleDelete() {
-		const data = await remove(fetch, `/devices/${device.id}`);
-		DeviceStore.update((currentDevices) => {
-			return currentDevices.filter((item) => item.id != device.id);
-		});
-	}
+	const lastChange = moment(item['last-change']).fromNow();
 </script>
 
 <tr>
-	{#each Object.entries(device) as [key, value], i}
-		{#if key !== 'id'}
-			<td>{value || '-'}</td>
-			<!-- <td>{device.ip_address || '-'}</td>
-	<td>{device.site || '-'}</td>
-	<td>{device.model || '-'}</td>
-	<td>{device.vendor || '-'}</td>
-	<td>{device.operating_system || '-'}</td>
-	<td>{device.os_version || '-'}</td> -->
-		{/if}
-	{/each}
-	<td class="flex justify-around">
-		<a href="/devices/{device.id}/edit" class="text-indigo-600 hover:text-indigo-900"
-			><Fa icon={faPen} /></a
-		>
-		<button on:click={handleDelete} class="text-red-600 hover:text-red-900 ml-3"
-			><Fa icon={faTrashCan} /></button
-		>
+	<td>
+		<span class="link link-primary link-hover">
+			{item.name}
+		</span>
 	</td>
+	<td>X.X.X.X</td>
+	<td>
+		<span
+			class="badge text-base-100 {item['admin-status'] === 'up' ? 'badge-success' : 'badge-error'}"
+		>
+			<!-- {item['admin-status'] === 'up' ? 'up' : 'down'} -->
+			{#if item['admin-status'] === 'up'}
+				<Icon data={faArrowUp} size="xs" />
+			{:else}
+				<Icon data={faArrowDown} size="xs" />
+			{/if}
+		</span>
+	</td>
+	<td>
+		<span
+			class="badge text-base-100 {item['oper-status'] === 'up' ? 'badge-success' : 'badge-error'}"
+		>
+			{#if item['oper-status'] === 'up'}
+				<Icon data={faArrowUp} size="xs" />
+			{:else}
+				<Icon data={faArrowDown} size="xs" />
+			{/if}
+		</span>
+	</td>
+	<td>{item['phys-address']}</td>
+	<td>{parseInt(item['speed']) / 1000000 + 'Mbps'}</td>
+	<td>{lastChange}</td>
+	<th>
+		<a sveltekit:prefetch href="/devices" class="btn btn-secondary hover:text-white btn-xs"
+			>details</a
+		>
+	</th>
 </tr>

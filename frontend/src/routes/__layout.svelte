@@ -71,11 +71,7 @@
 				</div>
 				<div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
 					<div class="py-4">
-						<div class="card-normal w-full bg-base-100 shadow-xl rounded-md">
-							<div class="card-body">
-								<slot />
-							</div>
-						</div>
+						<slot />
 					</div>
 				</div>
 			</div>

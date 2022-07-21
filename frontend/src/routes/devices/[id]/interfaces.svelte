@@ -16,6 +16,7 @@
 			}
 		);
 		let data = await resTwo.json();
+
 		const interfaces = data['ietf-interfaces:interfaces-state']['interface'];
 
 		if (resOne.ok && resTwo.ok) {
@@ -34,46 +35,15 @@
 </script>
 
 <script>
-	import Fa from 'svelte-fa';
-	import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 	export let device;
 	export let interfaces;
 	import title from '$lib/stores/title';
 	import Error from '../../__error.svelte';
+	import InterfaceTable from '$components/InterfaceTable.svelte';
 
-	$title = device.name.toUpperCase();
+	$title = `Interface Overview - ${device.name.toUpperCase()}`;
 </script>
 
-<h1 class="text-2xl uppercase font-bold">Interface Status</h1>
-<div class="divider" />
-
-{#each interfaces as item}
-	<h2 class="text-lg font-medium">{item.name}</h2>
-	<p>Packets in: {item['statistics']['in-octets']}</p>
-
-	<div class="stats shadow mb-4">
-		<div class="stat">
-			<div class="stat-figure {item['admin-status'] === 'up' ? 'text-success' : 'text-error'}">
-				<Fa size="2x" icon={item['admin-status'] === 'up' ? faArrowUp : faArrowDown} />
-			</div>
-			<div class="stat-title">Admin Status</div>
-			<div
-				class="stat-value uppercase {item['admin-status'] === 'up' ? 'text-success' : 'text-error'}"
-			>
-				{item['admin-status']}
-			</div>
-		</div>
-
-		<div class="stat">
-			<div class="stat-figure {item['oper-status'] === 'up' ? 'text-success' : 'text-error'}">
-				<Fa size="2x" icon={item['oper-status'] === 'up' ? faArrowUp : faArrowDown} />
-			</div>
-			<div class="stat-title">Oper Status</div>
-			<div
-				class="stat-value uppercase {item['oper-status'] === 'up' ? 'text-success' : 'text-error'}"
-			>
-				{item['oper-status']}
-			</div>
-		</div>
-	</div>
-{/each}
+<div class="shadow-xl">
+	<InterfaceTable items={interfaces} />
+</div>

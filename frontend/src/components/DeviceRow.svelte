@@ -14,6 +14,11 @@
 </script>
 
 <tr>
+	<th>
+		<label>
+			<input type="checkbox" class="checkbox" />
+		</label>
+	</th>
 	<td class="hover:text-primary"
 		><a sveltekit:prefetch href="/devices/{device.id}">{device.name || '-'}</a></td
 	>
@@ -22,13 +27,11 @@
 	<td>{device.model || '-'}</td>
 	<td>{device.vendor || '-'}</td>
 	<td>{device.operating_system || '-'}</td>
-	<td>{device.os_version || '-'}</td>
-	<td class="flex justify-around">
-		<a href="/devices/{device.id}/edit" class="text-indigo-600 hover:text-indigo-900"
-			><Fa icon={faPen} /></a
+	<th>
+		<a
+			sveltekit:prefetch
+			href="/devices/{device.id}"
+			class="btn btn-secondary hover:text-white btn-xs">details</a
 		>
-		<button on:click={handleDelete} class="text-red-600 hover:text-red-900 ml-3"
-			><Fa icon={faTrashCan} /></button
-		>
-	</td>
+	</th>
 </tr>
