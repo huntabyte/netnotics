@@ -1,7 +1,7 @@
 from typing import Optional
 
 import httpx
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
 
 BASE_URL = "https://{host}/restconf/data"
@@ -77,6 +77,20 @@ class RESTCONF:
             path: API endpoint to retrieve data from
         """
         return await self.request(method="POST", path=path, data=data, headers=headers)
+
+    async def verify_connectivity(self):
+        """
+        Verifies RESTCONF connectivity to the device
+        """
+        try:
+            response = await self.client.get(f"https://{self.host}/restconf")
+            response.raise_for_status()
+        except httpx.HTTPError:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Could not verify device",
+            )
+        return True
 
     async def get_xpath_data(self, xpath: str):
         """

@@ -4,7 +4,7 @@ from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api import deps
-from app.devices.restconf import RESTCONF
+from app.services.restconf import RESTCONF
 from app.models import Device, User
 from app.schemas.requests import DeviceCreateRequest
 from app.schemas.responses import DeviceResponse
@@ -179,3 +179,36 @@ async def get_restconf_data(
         host=device.fqdn, username=device.username, password=device.password
     )
     return await device_client.get_xpath_data(xpath=f"/{xpath}")
+
+
+@router.get("/{device_id}/restconf/verify")
+async def verify_restconf_connection(
+    device_id: int,
+    session: AsyncSession = Depends(deps.get_session),
+    current_user: User = Depends(deps.get_current_user),
+):
+    """
+    Verifies the restconf connection to the device specified by device_id
+    """
+    result = await session.execute(
+        select(Device).where(
+            and_(Device.id == device_id, Device.user_id == current_user.id)
+        )
+    )
+    device: Device | None = result.scalars().first()
+
+    if device is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Device not found"
+        )
+    device_client = RESTCONF(
+        host=device.fqdn, username=device.username, password=device.password
+    )
+
+    connected = await device_client.verify_connectivity()
+    if not connected:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Could not connect to the device",
+        )
+    return {"message": "Successfully connected to the device"}
