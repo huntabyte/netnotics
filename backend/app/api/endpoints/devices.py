@@ -181,6 +181,32 @@ async def get_restconf_data(
     return await device_client.get_xpath_data(xpath=f"/{xpath}")
 
 
+@router.get("/{device_id}/interfaces")
+async def get_device_interfaces(
+    device_id: int,
+    session: AsyncSession = Depends(deps.get_session),
+    current_user: User = Depends(deps.get_current_user),
+):
+    """
+    Returns a list of interfaces belonging to the device
+    """
+    result = await session.execute(
+        select(Device).where(
+            and_(Device.id == device_id, Device.user_id == current_user.id)
+        )
+    )
+    device: Device | None = result.scalars().first()
+
+    if device is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Device not found"
+        )
+    device_client = RESTCONF(
+        host=device.fqdn, username=device.username, password=device.password
+    )
+    return await device_client.get_interface_details()
+
+
 @router.get("/{device_id}/restconf/verify")
 async def verify_restconf_connection(
     device_id: int,

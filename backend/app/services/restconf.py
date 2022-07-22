@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 import httpx
 from fastapi import HTTPException, status
@@ -114,6 +114,14 @@ class RESTCONF:
         response = await self.get(path="/Cisco-IOS-XE-native:native/hostname")
         data = response.json()
         return data["Cisco-IOS-XE-native:hostname"]
+
+    async def get_interface_details(self) -> Any:
+        """
+        Returns the interface details for the specified device
+        """
+        response = await self.get(path="/Cisco-IOS-XE-interfaces-oper:interfaces")
+        data = response.json()
+        return data["Cisco-IOS-XE-interfaces-oper:interfaces"]["interface"]
 
     async def close(self) -> None:
         """Close the session"""
