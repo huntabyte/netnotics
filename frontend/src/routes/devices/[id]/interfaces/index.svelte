@@ -8,16 +8,11 @@
 		});
 		const device = await resOne.json();
 
-		const resTwo = await fetch(
-			`http://localhost:8000/devices/${id}/restconf?xpath=interfaces-state`,
-			{
-				method: 'GET',
-				credentials: 'include'
-			}
-		);
-		let data = await resTwo.json();
-
-		const interfaces = data['ietf-interfaces:interfaces-state']['interface'];
+		const resTwo = await fetch(`http://localhost:8000/devices/${id}/interfaces`, {
+			method: 'GET',
+			credentials: 'include'
+		});
+		let interfaces = await resTwo.json();
 
 		if (resOne.ok && resTwo.ok) {
 			return {
@@ -38,12 +33,11 @@
 	export let device;
 	export let interfaces;
 	import title from '$lib/stores/title';
-	import Error from '../../__error.svelte';
 	import InterfaceTable from '$components/InterfaceTable.svelte';
 
 	$title = `Interface Overview - ${device.name.toUpperCase()}`;
 </script>
 
 <div class="shadow-xl">
-	<InterfaceTable items={interfaces} />
+	<InterfaceTable items={interfaces} {device} />
 </div>

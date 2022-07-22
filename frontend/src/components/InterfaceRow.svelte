@@ -1,6 +1,7 @@
 <script>
 	import moment from 'moment';
 	export let item;
+	export let device;
 	import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 	import Icon from './Icon.svelte';
 
@@ -10,30 +11,44 @@
 <tr>
 	<td>
 		<span class="link link-primary link-hover">
-			{item.name}
+			<a sveltekit:prefetch href="/devices/{device.id}/interfaces/{item.name}">
+				{item.name}
+			</a>
 		</span>
 	</td>
-	<td>X.X.X.X</td>
+	<td>
+		{#if item.ipv4 !== '0.0.0.0'}
+			{item.ipv4}
+		{:else}
+			-
+		{/if}
+	</td>
 	<td>
 		<span
-			class="badge text-base-100 {item['admin-status'] === 'up' ? 'badge-success' : 'badge-error'}"
+			class="badge text-base-100 {item['admin-status'].includes('up') ||
+			item['admin-status'].includes('ready')
+				? 'badge-success'
+				: 'badge-error'}"
 		>
 			<!-- {item['admin-status'] === 'up' ? 'up' : 'down'} -->
-			{#if item['admin-status'] === 'up'}
-				<Icon data={faArrowUp} size="xs" />
+			{#if item['admin-status'].includes('up') || item['admin-status'].includes('ready')}
+				<Icon icon={faArrowUp} size="xs" />
 			{:else}
-				<Icon data={faArrowDown} size="xs" />
+				<Icon icon={faArrowDown} size="xs" />
 			{/if}
 		</span>
 	</td>
 	<td>
 		<span
-			class="badge text-base-100 {item['oper-status'] === 'up' ? 'badge-success' : 'badge-error'}"
+			class="badge text-base-100 {item['oper-status'].includes('up') ||
+			item['oper-status'].includes('ready')
+				? 'badge-success'
+				: 'badge-error'}"
 		>
-			{#if item['oper-status'] === 'up'}
-				<Icon data={faArrowUp} size="xs" />
+			{#if item['oper-status'].includes('up') || item['oper-status'].includes('ready')}
+				<Icon icon={faArrowUp} size="xs" />
 			{:else}
-				<Icon data={faArrowDown} size="xs" />
+				<Icon icon={faArrowDown} size="xs" />
 			{/if}
 		</span>
 	</td>
@@ -41,8 +56,10 @@
 	<td>{parseInt(item['speed']) / 1000000 + 'Mbps'}</td>
 	<td>{lastChange}</td>
 	<th>
-		<a sveltekit:prefetch href="/devices" class="btn btn-secondary hover:text-white btn-xs"
-			>details</a
+		<a
+			sveltekit:prefetch
+			href="/devices/{device.id}/interfaces/{item.name}"
+			class="btn btn-secondary hover:text-white btn-xs">details</a
 		>
 	</th>
 </tr>

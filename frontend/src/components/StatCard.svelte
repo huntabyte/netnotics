@@ -6,14 +6,14 @@
 	export let desc = 'Description';
 	export let figure;
 	export let color = 'primary';
-	export let Size = 'sm';
+	export let size = 'sm';
 	export let link = '/';
 </script>
 
 <div class="stats shadow w-56">
 	<div class="stat">
 		<div class="stat-figure text-{color}">
-			<Icon data={figure} {Size} />
+			<Icon icon={figure} {size} />
 		</div>
 		<div class="stat-title">{title}</div>
 		<a sveltekit:prefetch href={link} class="stat-value hover:text-primary cursor-pointer"

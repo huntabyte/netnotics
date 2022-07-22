@@ -1,6 +1,7 @@
 <script>
 	import InterfaceRow from '$components/InterfaceRow.svelte';
 	export let items;
+	export let device;
 </script>
 
 <div class="overflow-x-auto">
@@ -20,7 +21,7 @@
 		</thead>
 		<tbody>
 			{#each items as item (item.name)}
-				<InterfaceRow {item} />
+				<InterfaceRow {item} {device} />
 			{/each}
 		</tbody>
 	</table>
