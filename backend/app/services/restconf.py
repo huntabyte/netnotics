@@ -89,18 +89,14 @@ class RESTCONF:
         """
         if not raiseErr:
             try:
-                response = await self.client.get(
-                    f"https://{self.host}/.well-known/host-meta"
-                )
+                response = await self.client.get(f"https://{self.host}/restconf")
                 response.raise_for_status()
             except (Exception, httpx.HTTPError):
                 return False
 
             return True
         try:
-            response = await self.client.get(
-                f"https://{self.host}/.well-known/host-meta"
-            )
+            response = await self.client.get(f"https://{self.host}/restconf")
             response.raise_for_status()
         except (Exception, httpx.HTTPError):
             raise HTTPException(
