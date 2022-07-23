@@ -1,13 +1,14 @@
-from typing import Any
+import asyncio
+from typing import Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.api import deps
 from app.services.restconf import RESTCONF
 from app.models import Device, User
 from app.schemas.requests import DeviceCreateRequest
-from app.schemas.responses import DeviceResponse
+from app.schemas.responses import DeviceDataResponse, DeviceResponse
+from time import perf_counter
 
 router = APIRouter()
 
@@ -36,7 +37,7 @@ async def create_device(
             username=new_device.username,
             password=new_device.password,
         )
-
+        await device.is_manageable
         session.add(device)
         await session.commit()
         return device
@@ -55,12 +56,19 @@ async def get_all_devices(
 ):
     """Get a list of devices for currently logged in user"""
     try:
-        devices = await session.execute(
+        result = await session.execute(
             select(Device)
             .where(Device.user_id == current_user.id)
             .order_by(Device.name)
         )
-        return devices.scalars().all()
+        devices = result.scalars().all()
+        time_before = perf_counter()
+
+        await asyncio.gather(*[d.is_manageable for d in devices])
+        print(f"Total time (asynchronous): {perf_counter() - time_before}.")
+
+        return devices
+
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -86,6 +94,7 @@ async def get_device(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Device not found"
         )
+    await device.is_manageable
 
     return device
 
@@ -112,39 +121,6 @@ async def delete_device(
     await session.delete(device)
     await session.commit()
     return {"message": "Device removed successfully"}
-
-
-@router.get("/{device_id}/os-version")
-async def get_os_version(
-    device_id: int,
-    session: AsyncSession = Depends(deps.get_session),
-    current_user: User = Depends(deps.get_current_user),
-):
-    """Return the device's OS version"""
-
-    result = await session.execute(
-        select(Device).where(
-            and_(Device.id == device_id, Device.user_id == current_user.id)
-        )
-    )
-    device: Device | None = result.scalars().first()
-
-    if device is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Device not found"
-        )
-
-    device_client = RESTCONF(
-        host=device.fqdn, username=device.username, password=device.password
-    )
-    version = await device_client.get_os_version()
-    if version:
-        return {"version": version}
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Could not fetch the OS version for the given device.",
-        )
 
 
 @router.get("/{device_id}/restconf")
@@ -174,16 +150,28 @@ async def get_restconf_data(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Device not found"
         )
+    await device.is_manageable
+
+    if not device.manageable:
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT, detail="Could not reach device"
+        )
 
     device_client = RESTCONF(
         host=device.fqdn, username=device.username, password=device.password
     )
-    return await device_client.get_xpath_data(xpath=f"/{xpath}")
+    data = await device_client.get_xpath_data(xpath=f"/{xpath}")
+
+    return {
+        "device": device,
+        "data": data,
+    }
 
 
-@router.get("/{device_id}/interfaces")
+@router.get("/{device_id}/interfaces", response_model=DeviceDataResponse)
 async def get_device_interfaces(
     device_id: int,
+    name: Optional[str] = None,
     session: AsyncSession = Depends(deps.get_session),
     current_user: User = Depends(deps.get_current_user),
 ):
@@ -201,10 +189,24 @@ async def get_device_interfaces(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Device not found"
         )
+    await device.is_manageable
+
+    if not device.manageable:
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT, detail="Could not reach device"
+        )
+
     device_client = RESTCONF(
         host=device.fqdn, username=device.username, password=device.password
     )
-    return await device_client.get_interface_details()
+
+    if name:
+        interface = await device_client.get_interface_details(name)
+        return {"device": device, "data": interface}
+
+    interfaces = await device_client.get_interface_details()
+
+    return {"device": device, "data": interfaces}
 
 
 @router.get("/{device_id}/restconf/verify")
@@ -231,10 +233,10 @@ async def verify_restconf_connection(
         host=device.fqdn, username=device.username, password=device.password
     )
 
-    connected = await device_client.verify_connectivity()
+    connected = await device_client.verify_connectivity(raiseErr=False)
     if not connected:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Could not connect to the device",
         )
-    return {"message": "Successfully connected to the device"}
+    return {"success": True}

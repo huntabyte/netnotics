@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 import uuid
 
 from pydantic import BaseModel, EmailStr
@@ -37,6 +37,7 @@ class DeviceResponse(BaseResponse):
     model: Optional[str] = None
     operating_system: Optional[str] = None
     os_version: Optional[str] = None
+    manageable: Optional[bool] = False
 
 
 class SessionResponse(BaseResponse):
@@ -51,3 +52,8 @@ class RESTCONFResponse(BaseResponse):
 
 class DeviceOSVersionResponse(RESTCONFResponse):
     version: str
+
+
+class DeviceDataResponse(RESTCONFResponse):
+    device: DeviceResponse
+    data: Any

@@ -46,6 +46,7 @@ class RESTCONF:
         """
 
         try:
+            await self.verify_connectivity()
             response = await self.client.request(
                 method=method, url=f"{self.url}{path}", data=data, headers=headers
             )
@@ -78,17 +79,33 @@ class RESTCONF:
         """
         return await self.request(method="POST", path=path, data=data, headers=headers)
 
-    async def verify_connectivity(self):
+    async def verify_connectivity(self, raiseErr: bool = True):
         """
         Verifies RESTCONF connectivity to the device
+
+        Args:
+            raiseErr: Whether or not the connection will raise an exception on error,
+            or just return False
         """
+        if not raiseErr:
+            try:
+                response = await self.client.get(
+                    f"https://{self.host}/.well-known/host-meta"
+                )
+                response.raise_for_status()
+            except (Exception, httpx.HTTPError):
+                return False
+
+            return True
         try:
-            response = await self.client.get(f"https://{self.host}/restconf")
+            response = await self.client.get(
+                f"https://{self.host}/.well-known/host-meta"
+            )
             response.raise_for_status()
-        except httpx.HTTPError:
+        except (Exception, httpx.HTTPError):
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Could not verify device",
+                detail="Could not verify connectivity to the requested device",
             )
         return True
 
@@ -115,10 +132,17 @@ class RESTCONF:
         data = response.json()
         return data["Cisco-IOS-XE-native:hostname"]
 
-    async def get_interface_details(self) -> Any:
+    async def get_interface_details(self, name: str = None) -> Any:
         """
         Returns the interface details for the specified device
         """
+        if name:
+            response = await self.get(
+                path=f"/Cisco-IOS-XE-interfaces-oper:interfaces/interface={name}"
+            )
+            data = response.json()
+            return data["Cisco-IOS-XE-interfaces-oper:interface"]
+
         response = await self.get(path="/Cisco-IOS-XE-interfaces-oper:interfaces")
         data = response.json()
         return data["Cisco-IOS-XE-interfaces-oper:interfaces"]["interface"]

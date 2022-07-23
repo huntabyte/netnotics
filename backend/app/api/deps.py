@@ -1,12 +1,12 @@
 from typing import AsyncGenerator
 
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy import select
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.session import async_session
-from app.models import User, UserSession
+from app.models import Device, User, UserSession
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="auth/access-token")
 
@@ -34,16 +34,41 @@ async def get_current_user(
                 user: User | None = result.scalars().first()
 
                 if not user:
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-                    )
+                    raise HTTPException(status_code=404, detail="User not found")
                 return user
         else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Bad request"
-            )
+            raise HTTPException(status_code=400, detail="Bad request")
     except Exception as e:
         print(e)
+
+
+async def device(
+    device_id: int,
+    current_user: Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    try:
+        result = await session.execute(
+            select(Device).where(
+                and_(Device.id == device_id, Device.user_id == current_user.id)
+            )
+        )
+        device: Device | None = result.scalars().first()
+
+        if device is None:
+            raise HTTPException(status_code=404, detail="Device not found")
+        return device
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected error occurred while retrieving the requested device.",
+        )
+
+
+async def is_manageable(device: Device = Depends(device)):
+    manageable = await device.is_manageable
+    if not manageable:
+        raise HTTPException(status_code=405, detail="Device is not manageable.")
 
 
 # JWT-Based Implementation

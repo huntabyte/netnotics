@@ -16,9 +16,12 @@ alembic upgrade head
 import uuid
 from dataclasses import dataclass, field
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import registry
+from sqlalchemy.ext.hybrid import hybrid_property
+
+from app.services.restconf import RESTCONF
 
 Base = registry()
 
@@ -104,3 +107,13 @@ class Device:
     password: str = field(
         metadata={"sa": Column(String(255), nullable=True, default=None)}
     )
+    manageable: bool = field(metadata={"sa": Column(Boolean, default=False)})
+
+    @hybrid_property
+    async def is_manageable(self):
+        device_client = RESTCONF(
+            host=self.fqdn, username=self.username, password=self.password
+        )
+        result = await device_client.verify_connectivity(raiseErr=False)
+        self.manageable = result
+        return result
