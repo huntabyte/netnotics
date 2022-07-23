@@ -248,3 +248,5 @@ dmypy.json
 
 # profiling data
 .prof
+
+.vscode/
