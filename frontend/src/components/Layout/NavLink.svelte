@@ -8,6 +8,7 @@
 </script>
 
 <a
+	sveltekit:prefetch
 	{href}
 	class="{$page.url.pathname.includes(href)
 		? 'bg-gray-100 text-gray-900'
