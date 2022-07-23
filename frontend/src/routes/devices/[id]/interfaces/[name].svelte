@@ -1,25 +1,18 @@
 <script context="module">
 	export async function load({ fetch, params }) {
-		let name = params.name;
-		let id = params.id;
-		const resOne = await fetch(`http://localhost:8000/devices/${id}`, {
+		const name = params.name;
+		const id = params.id;
+		const res = await fetch(`http://localhost:8000/devices/${id}/interfaces?name=${name}`, {
 			method: 'GET',
 			credentials: 'include'
 		});
-		const device = await resOne.json();
+		const data = await res.json();
+		const device = data['device'];
+		const interfaceData = data['data'];
 
-		const resTwo = await fetch(
-			`http://localhost:8000/devices/${id}/restconf?xpath=Cisco-IOS-XE-interfaces-oper:interfaces/interface=${name}`,
-			{
-				method: 'GET',
-				credentials: 'include'
-			}
-		);
-		let interfaceDetails = await resTwo.json();
-		interfaceDetails = interfaceDetails['Cisco-IOS-XE-interfaces-oper:interface'];
 		let basicDetails = {};
 		let extraDetails = {};
-		for (let [key, value] of Object.entries(interfaceDetails)) {
+		for (let [key, value] of Object.entries(interfaceData)) {
 			if (typeof value === 'object' && value !== null) {
 				extraDetails[`${key}`] = value;
 			} else {
@@ -27,13 +20,13 @@
 			}
 		}
 
-		if (resOne.ok && resTwo.ok) {
+		if (res.ok) {
 			return {
 				props: {
 					device,
+					interfaceData,
 					basicDetails,
-					extraDetails,
-					interfaceDetails
+					extraDetails
 				}
 			};
 		}
@@ -48,10 +41,11 @@
 	export let device;
 	export let basicDetails;
 	export let extraDetails;
+	export let interfaceData;
 	import title from '$lib/stores/title';
 	import moment from 'moment';
 
-	$title = `${device.name} - ${basicDetails.name}`;
+	$title = `${device.name.toUpperCase()} - ${interfaceData.name}`;
 	function capitalize(string) {
 		return string.charAt(0).toUpperCase() + string.slice(1);
 	}

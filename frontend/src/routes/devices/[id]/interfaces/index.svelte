@@ -1,20 +1,16 @@
 <script context="module">
 	export async function load({ fetch, params }) {
 		const id = params.id;
-		const url = `http://localhost:8000/devices/${id}`;
-		const resOne = await fetch(url, {
+		const endpoint = `http://localhost:8000/devices/${id}/interfaces`;
+		const res = await fetch(endpoint, {
 			method: 'GET',
 			credentials: 'include'
 		});
-		const device = await resOne.json();
+		const data = await res.json();
+		const device = data['device'];
+		const interfaces = data['data'];
 
-		const resTwo = await fetch(`http://localhost:8000/devices/${id}/interfaces`, {
-			method: 'GET',
-			credentials: 'include'
-		});
-		let interfaces = await resTwo.json();
-
-		if (resOne.ok && resTwo.ok) {
+		if (res.ok) {
 			return {
 				props: {
 					device,
@@ -39,5 +35,5 @@
 </script>
 
 <div class="shadow-xl">
-	<InterfaceTable items={interfaces} {device} />
+	<InterfaceTable {interfaces} {device} />
 </div>

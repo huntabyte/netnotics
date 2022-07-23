@@ -1,39 +1,22 @@
 <script context="module">
 	export async function load({ fetch, params }) {
 		const id = params.id;
-		const endpoint = `http://localhost:8000/devices/${id}`;
+		const endpoint = `http://localhost:8000/devices/${id}/interfaces`;
 		const res = await fetch(endpoint, {
 			method: 'GET',
 			credentials: 'include'
 		});
-		const device = await res.json();
-
-		const resTwo = await fetch(
-			`http://localhost:8000/devices/${id}/restconf?xpath=interfaces-state`,
-			{
-				method: 'GET',
-				credentials: 'include'
-			}
-		);
-		const data = await resTwo.json();
-		const interfaces = data['ietf-interfaces:interfaces-state']['interface'];
+		const data = await res.json();
+		const device = data['device'];
+		const interfaces = data['data'];
 
 		if (res.ok) {
-			if (resTwo.ok) {
-				return {
-					props: {
-						device,
-						numInterfaces: interfaces.length
-					}
-				};
-			} else {
-				return {
-					props: {
-						device,
-						numInterfaces: 'N/A'
-					}
-				};
-			}
+			return {
+				props: {
+					device: device,
+					interfaces: interfaces
+				}
+			};
 		}
 		return {
 			status: res.status,
@@ -44,11 +27,10 @@
 
 <script>
 	export let device;
-	export let numInterfaces;
+	export let interfaces;
 	import title from '$lib/stores/title';
 	import StatCard from '$components/StatCard.svelte';
 	import { faEthernet } from '@fortawesome/free-solid-svg-icons';
-	import Fa from 'svelte-fa/src/fa.svelte';
 	$title = `Device Overview - ${device.name.toUpperCase()}`;
 </script>
 
@@ -56,7 +38,7 @@
 	<div class="flex">
 		<StatCard
 			title="Interfaces"
-			value={numInterfaces}
+			value={interfaces.length}
 			desc={''}
 			figure={faEthernet}
 			Size="lg"

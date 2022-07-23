@@ -16,10 +16,9 @@
 				</th>
 				<th>Name</th>
 				<th>IP Address</th>
+				<th>Host</th>
+				<th>Manageable</th>
 				<th>Site</th>
-				<th>Model</th>
-				<th>Vendor</th>
-				<th>OS</th>
 				<th />
 			</tr>
 		</thead>

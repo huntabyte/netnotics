@@ -1,6 +1,6 @@
 <script>
 	import InterfaceRow from '$components/InterfaceRow.svelte';
-	export let items;
+	export let interfaces;
 	export let device;
 </script>
 
@@ -20,7 +20,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each items as item (item.name)}
+			{#each interfaces as item (item.name)}
 				<InterfaceRow {item} {device} />
 			{/each}
 		</tbody>

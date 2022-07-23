@@ -1,16 +1,9 @@
 <script>
 	import DeviceStore from '$lib/stores/DeviceStore';
+	import { faCircle, faSpinner } from '@fortawesome/free-solid-svg-icons';
+	import { onMount } from 'svelte';
+	import Icon from './Icon.svelte';
 	export let device;
-	import Fa from 'svelte-fa/src/fa.svelte';
-	import { faTrashCan, faPen } from '@fortawesome/free-solid-svg-icons/index.es';
-	import { remove } from '$lib/api';
-
-	async function handleDelete() {
-		const data = await remove(fetch, `/devices/${device.id}`);
-		DeviceStore.update((currentDevices) => {
-			return currentDevices.filter((item) => item.id != device.id);
-		});
-	}
 </script>
 
 <tr>
@@ -23,10 +16,13 @@
 		><a sveltekit:prefetch href="/devices/{device.id}">{device.name || '-'}</a></td
 	>
 	<td>{device.ip_address || '-'}</td>
+	<td>{device.fqdn || '-'}</td>
+	<td>
+		<span class={device.manageable ? 'text-success' : 'text-error'}>
+			<Icon icon={faCircle} />
+		</span>
+	</td>
 	<td>{device.site || '-'}</td>
-	<td>{device.model || '-'}</td>
-	<td>{device.vendor || '-'}</td>
-	<td>{device.operating_system || '-'}</td>
 	<th>
 		<a
 			sveltekit:prefetch
