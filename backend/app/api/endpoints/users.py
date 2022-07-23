@@ -1,9 +1,10 @@
 import time
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api import deps
+from app.api.deps import CommonDeps
 from app.core.security import get_password_hash
 from app.models import UserSession, User
 from app.schemas.requests import UserCreateRequest, UserUpdatePasswordRequest
@@ -13,35 +14,32 @@ router = APIRouter()
 
 
 @router.get("/me", response_model=UserResponse)
-async def read_current_user(
-    request: Request,
-    current_user: User = Depends(deps.get_current_user),
-):
+async def read_current_user(commons: CommonDeps = Depends(CommonDeps)):
     """Get current user"""
-    return current_user
+    return commons.current_user
 
 
 @router.delete("/me", status_code=204)
-async def delete_current_user(
-    current_user: User = Depends(deps.get_current_user),
-    session: AsyncSession = Depends(deps.get_session),
-):
+async def delete_current_user(commons: CommonDeps = Depends(CommonDeps)):
     """Delete current user"""
-    await session.execute(delete(User).where(User.id == current_user.id))
-    await session.commit()
+    await commons.session.execute(
+        delete(User).where(User.id == commons.current_user.id)
+    )
+    await commons.session.commit()
 
 
 @router.post("/reset-password", response_model=UserResponse)
 async def reset_current_user_password(
     user_update_password: UserUpdatePasswordRequest,
-    session: AsyncSession = Depends(deps.get_session),
-    current_user: User = Depends(deps.get_current_user),
+    commons: CommonDeps = Depends(CommonDeps),
 ):
     """Update current user password"""
-    current_user.hashed_password = get_password_hash(user_update_password.password)
-    session.add(current_user)
-    await session.commit()
-    return current_user
+    commons.current_user.hashed_password = get_password_hash(
+        user_update_password.password
+    )
+    commons.session.add(commons.current_user)
+    await commons.session.commit()
+    return commons.current_user
 
 
 @router.post("/register", response_model=UserResponse)
