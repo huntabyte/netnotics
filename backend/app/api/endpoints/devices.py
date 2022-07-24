@@ -106,8 +106,7 @@ async def get_restconf_data(
 )
 async def get_device_interfaces(
     name: Optional[str] = None,
-    device: Device = Depends(deps.get_managed_device),
-    commons: CommonDeps = Depends(CommonDeps),
+    device: Device = Depends(deps.get_device),
 ) -> DeviceDataResponse:
     """
     Returns a list of interfaces belonging to the device

@@ -201,7 +201,7 @@
 
 		<div class="pt-5">
 			<div class="flex justify-end">
-				<button href="/devices" type="button" class="btn btn-outline btn-error px-6">Cancel</button>
+				<a sveltekit:prefetch href="/devices" class="btn btn-outline btn-error px-6">Cancel</a>
 				<button on:click|once|preventDefault={handleCreate} class="btn btn-success ml-4 px-6"
 					>Save</button
 				>

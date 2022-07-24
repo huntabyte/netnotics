@@ -1,4 +1,3 @@
-import asyncio
 from typing import AsyncGenerator
 
 from fastapi import Depends, HTTPException, Request
@@ -68,7 +67,7 @@ async def get_many_devices(commons: CommonDeps = Depends(CommonDeps)):
         )
         devices = result.scalars().all()
 
-        await asyncio.gather(*[d.is_manageable for d in devices])
+        # await asyncio.gather(*[d.is_manageable for d in devices])
 
         return devices
 
@@ -90,7 +89,6 @@ async def get_device(device_id: int, commons: CommonDeps = Depends(CommonDeps)):
 
         if device is None:
             raise HTTPException(status_code=404, detail="Device not found")
-        await device.is_manageable
         return device
     except Exception:
         raise HTTPException(
