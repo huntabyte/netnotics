@@ -25,8 +25,9 @@
 	import title from '$lib/stores/title';
 	export let deviceCount;
 	import StatCard from '$components/StatCard.svelte';
+	import { faSpinner } from '@fortawesome/free-solid-svg-icons/index.es';
 
 	$title = 'Dashboard';
 </script>
 
-<StatCard title="Devices" link="/devices" value={deviceCount} />
+<StatCard title="Devices" link="/devices" value={deviceCount} figure={faSpinner} />

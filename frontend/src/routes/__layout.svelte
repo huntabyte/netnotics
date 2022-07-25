@@ -22,6 +22,9 @@
 	import SidebarNavItem from '$components/Sidebar/SidebarNavItem.svelte';
 	import * as api from '$lib/api';
 	let navActive = false;
+	export let id;
+	export let name;
+	export let email;
 
 	const toggleNav = () => {
 		navActive = !navActive;
