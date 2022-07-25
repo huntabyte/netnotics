@@ -1,6 +1,6 @@
 ## EXAMPLE FROM POETRY GITHUB ISSUES
 
-FROM python:3.7.4-slim as python-base
+FROM python:3.10.5-slim as python-base
 ENV PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100 \
