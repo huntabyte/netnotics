@@ -1,8 +1,5 @@
 <script>
 	import * as api from '$lib/api';
-	import { createEventDispatcher } from 'svelte';
-
-	const dispatch = createEventDispatcher();
 
 	async function handleLogout() {
 		const response = await api.post(fetch, '/auth/logout');
