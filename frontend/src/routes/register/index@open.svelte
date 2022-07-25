@@ -18,11 +18,13 @@
 
 <script>
 	import { faBars, faHouse, faServer } from '@fortawesome/free-solid-svg-icons';
-	import './../app.css';
 	import Icon from '$components/Icon.svelte';
 	import SidebarNavItem from '$components/Sidebar/SidebarNavItem.svelte';
 	import * as api from '$lib/api';
 	let navActive = false;
+	export let id;
+	export let name;
+	export let email;
 
 	const toggleNav = () => {
 		navActive = !navActive;
@@ -76,7 +78,7 @@
 		<div class="{navActive ? 'md:ml-56' : 'md:ml-20'} transition-all duration-300 ease-in-out">
 			<div class="navbar bg-base-100 shadow">
 				<div class="flex-1">
-					<a sveltekit:prefetch href="/" class="btn btn-ghost normal-case text-xl">NETNOTICS</a>
+					<a href="/" class="btn btn-ghost normal-case text-xl">NETNOTICS</a>
 				</div>
 				<div class="flex-none gap-2">
 					<div class="form-control">
@@ -109,7 +111,7 @@
 							class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
 						>
 							<li>
-								<a sveltekit:prefetch href="/profile" class="justify-between">
+								<a href="/" class="justify-between">
 									Profile
 									<span class="badge">New</span>
 								</a>
@@ -120,7 +122,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="px-8 pt-8">
+			<div class="pl-8 pt-8">
 				<slot />
 			</div>
 		</div>

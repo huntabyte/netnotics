@@ -1,7 +1,5 @@
 <script>
-	import DeviceStore from '$lib/stores/DeviceStore';
-	import { faCircle, faSpinner } from '@fortawesome/free-solid-svg-icons';
-	import { onMount } from 'svelte';
+	import { faCircle } from '@fortawesome/free-solid-svg-icons';
 	import Icon from './Icon.svelte';
 	export let device;
 </script>

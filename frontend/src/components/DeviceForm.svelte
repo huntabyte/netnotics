@@ -35,8 +35,8 @@
 	}
 </script>
 
-<form class="divide-y divide-gray-200">
-	<div class="divide-y divide-gray-200 sm:space-y-5">
+<form class="card bg-base-100 divide-y divide-gray-200">
+	<div class="card-body divide-y divide-gray-200 sm:space-y-5">
 		<div class="sm:space-y-5">
 			<div class="sm:space-y-5">
 				<div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start">
