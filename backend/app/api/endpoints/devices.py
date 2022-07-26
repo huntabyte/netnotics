@@ -1,11 +1,10 @@
 from typing import Any, Optional
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.api import deps
 from app.api.deps import CommonDeps
 from app.services.restconf import RESTCONF
-from app.models import Device, User
-from app.schemas.requests import DeviceCreateRequest
+from app.models import Device
+from app.schemas.requests import DeviceCreateRequest, DeviceUpdateRequest
 from app.schemas.responses import DeviceDataResponse, DeviceResponse
 
 router = APIRouter()
@@ -13,9 +12,7 @@ router = APIRouter()
 
 @router.post("", response_model=DeviceResponse, status_code=201)
 async def create_device(
-    new_device: DeviceCreateRequest,
-    session: AsyncSession = Depends(deps.get_session),
-    current_user: User = Depends(deps.get_current_user),
+    new_device: DeviceCreateRequest, commons: CommonDeps = Depends(CommonDeps)
 ) -> DeviceResponse:
     """
     Creates a new device. Only for logged in users.
@@ -23,21 +20,17 @@ async def create_device(
 
     try:
         device = Device(
-            user_id=current_user.id,
+            user_id=commons.current_user.id,
             name=new_device.name,
             ip_address=new_device.ip_address,
-            site=new_device.site,
-            fqdn=new_device.fqdn,
-            vendor=new_device.vendor,
-            model=new_device.model,
-            operating_system=new_device.operating_system,
-            os_version=new_device.os_version,
+            host=new_device.host,
             username=new_device.username,
             password=new_device.password,
+            manageable=new_device.manageable,
         )
         await device.is_manageable
-        session.add(device)
-        await session.commit()
+        commons.session.add(device)
+        await commons.session.commit()
         return device
     except Exception as e:
         print(e)
@@ -45,6 +38,27 @@ async def create_device(
             status_code=500,
             detail="An unexpected error occurred while creating the device",
         )
+
+
+@router.put("/{device_id}", response_model=DeviceResponse, status_code=200)
+async def update_device(
+    updated_device: DeviceUpdateRequest,
+    commons: CommonDeps = Depends(CommonDeps),
+    device: Device = Depends(deps.get_device),
+):
+    """Update a device by ID"""
+    if updated_device.name:
+        device.name = updated_device.name
+    if updated_device.ip_address:
+        device.ip_address = updated_device.ip_address
+    if updated_device.host:
+        device.host = updated_device.host
+    if updated_device.username:
+        device.username = updated_device.username
+    if updated_device.password:
+        device.password = updated_device.password
+    await commons.session.commit()
+    return device
 
 
 @router.get("", response_model=list[DeviceResponse], status_code=200)
@@ -57,8 +71,7 @@ async def get_all_devices(
 
 @router.get("/{device_id}", response_model=DeviceResponse, status_code=200)
 async def get_device(device: Device = Depends(deps.get_device)) -> DeviceResponse:
-    await device.is_manageable
-
+    """Get a single device by ID"""
     return device
 
 
@@ -90,7 +103,7 @@ async def get_restconf_data(
         raise HTTPException(status_code=504, detail="Could not reach device")
 
     device_client = RESTCONF(
-        host=device.fqdn, username=device.username, password=device.password
+        host=device.host, username=device.username, password=device.password
     )
     data = await device_client.get_xpath_data(xpath=f"/{xpath}")
 
@@ -113,7 +126,7 @@ async def get_device_interfaces(
     """
 
     device_client = RESTCONF(
-        host=device.fqdn, username=device.username, password=device.password
+        host=device.host, username=device.username, password=device.password
     )
 
     if name:

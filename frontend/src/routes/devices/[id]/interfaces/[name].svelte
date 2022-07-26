@@ -38,6 +38,7 @@
 </script>
 
 <script>
+	import Collapse from '$components/Collapse.svelte';
 	export let device;
 	export let basicDetails;
 	export let extraDetails;
@@ -54,10 +55,10 @@
 	}
 </script>
 
-<div class="grid grid-cols-2 gap-4">
-	<div class="card card-normal bg-base-100 shadow-xl w-96">
-		<div class="card-body">
-			<h2 class="card-title">Interface Details</h2>
+<h1 class="text-2xl font-semibold pb-3">{interfaceData.name}</h1>
+<div class="flex flex-wrap gap-3">
+	<div class="flex-grow shrink w-full">
+		<Collapse title={'Interface Details'} checked={true}>
 			{#each Object.entries(basicDetails) as [key, value]}
 				<div class="flex">
 					<div>
@@ -73,12 +74,12 @@
 				</div>
 				<div class="divider my-0 py-0" />
 			{/each}
-		</div>
+		</Collapse>
 	</div>
+
 	{#each Object.entries(extraDetails) as [key, value]}
-		<div class="card card-normal bg-base-100 shadow-xl w-96 grow">
-			<div class="card-body">
-				<h2 class="card-title">{capitalize(key)}</h2>
+		<div class="flex-grow shrink w-96">
+			<Collapse title={capitalize(key)}>
 				{#each Object.entries(value) as [innerKey, innerValue]}
 					<div class="flex">
 						<div>
@@ -90,7 +91,7 @@
 					</div>
 					<div class="divider my-0 py-0" />
 				{/each}
-			</div>
+			</Collapse>
 		</div>
 	{/each}
 </div>

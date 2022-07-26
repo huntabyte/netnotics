@@ -14,9 +14,10 @@ alembic revision --autogenerate -m "migration_name"
 alembic upgrade head
 """
 import uuid
+from datetime import datetime, timezone
 from dataclasses import dataclass, field
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import registry
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -26,9 +27,23 @@ from app.services.restconf import RESTCONF
 Base = registry()
 
 
+@dataclass
+class BaseMixin:
+    __sa_dataclass_metadata_key__ = "sa"
+
+    created: timezone = field(
+        init=False,
+        metadata={"sa": Column(DateTime, default=datetime.utcnow())},
+    )
+    updated: timezone = field(
+        init=False,
+        metadata={"sa": Column(DateTime, default=datetime.utcnow())},
+    )
+
+
 @Base.mapped
 @dataclass
-class User:
+class User(BaseMixin):
     __tablename__ = "users"
     __sa_dataclass_metadata_key__ = "sa"
 
@@ -63,7 +78,7 @@ class UserSession:
 
 @Base.mapped
 @dataclass
-class Device:
+class Device(BaseMixin):
     __tablename__ = "devices"
     __sa_dataclass_metadata_key__ = "sa"
 
@@ -75,44 +90,21 @@ class Device:
     ip_address: str = field(
         metadata={"sa": Column(String(128), nullable=True, default=None)}
     )
-    fqdn: str = field(metadata={"sa": Column(String(255), nullable=True, default=None)})
-    site: str = field(metadata={"sa": Column(String(255), nullable=True, default=None)})
-    vendor: str = field(
-        metadata={
-            "sa": Column(
-                String(255),
-                nullable=True,
-                default=None,
-            )
-        }
-    )
-    model: str = field(
-        metadata={"sa": Column(String(255), nullable=True, default=None)}
-    )
-    operating_system: str = field(
-        metadata={
-            "sa": Column(
-                String(255),
-                nullable=True,
-                default=None,
-            )
-        }
-    )
-    os_version: str = field(
-        metadata={"sa": Column(String(255), nullable=True, default=None)}
-    )
+    host: str = field(metadata={"sa": Column(String(255), nullable=True, default=None)})
     username: str = field(
         metadata={"sa": Column(String(255), nullable=True, default=None)}
     )
     password: str = field(
         metadata={"sa": Column(String(255), nullable=True, default=None)}
     )
-    manageable: bool = field(metadata={"sa": Column(Boolean, default=False)})
+    manageable: bool = field(
+        metadata={"sa": Column(Boolean, nullable=False, default=False)}
+    )
 
     @hybrid_property
     async def is_manageable(self):
         device_client = RESTCONF(
-            host=self.fqdn, username=self.username, password=self.password
+            host=self.host, username=self.username, password=self.password
         )
         result = await device_client.verify_connectivity(raiseErr=False)
         self.manageable = result

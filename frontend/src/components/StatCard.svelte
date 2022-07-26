@@ -10,7 +10,7 @@
 	export let link = '/';
 </script>
 
-<div class="stats shadow w-56">
+<div class="stats shadow-lg w-56">
 	<div class="stat">
 		<div class="stat-figure text-{color}">
 			<Icon icon={figure} {size} />

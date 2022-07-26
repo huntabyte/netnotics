@@ -1,14 +1,18 @@
 <script>
+	import { BASE_URL } from '$lib/constants';
 	import { goto } from '$app/navigation';
 	import DeviceStore from '$lib/stores/DeviceStore';
 
-	let name, ipAddress, host, username, password;
+	export let device;
+	let name = device.name;
+	let ipAddress = device.ip_address;
+	let host = device.host;
+	let username = device.username;
+	let password = device.password;
 
-	import { BASE_URL } from '$lib/constants';
-
-	async function handleCreate() {
-		const res = await fetch(`${BASE_URL}/devices`, {
-			method: 'POST',
+	async function handleUpdate() {
+		const res = await fetch(`${BASE_URL}/devices/${device.id}`, {
+			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json'
 			},
@@ -103,8 +107,8 @@
 				</div>
 
 				<div>
-					<button class="w-full btn btn-primary" on:click|preventDefault={handleCreate}
-						>Create Device</button
+					<button class="w-full btn btn-primary" on:click|preventDefault={handleUpdate}
+						>Edit Device</button
 					>
 				</div>
 			</div>

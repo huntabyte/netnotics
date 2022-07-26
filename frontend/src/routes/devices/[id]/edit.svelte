@@ -16,7 +16,12 @@
 </script>
 
 <script>
+	import DeviceEditForm from '$components/DeviceEditForm.svelte';
 	export let device;
 </script>
 
-<h1>{device.name}</h1>
+<div class="flex flex-col">
+	<h1 class="text-2xl font-semibold pb-4">Edit Device - {device.name}</h1>
+	<!-- TODO: Add edit or new prop to use same form for both editing and creating new devices -->
+	<DeviceEditForm {device} />
+</div>

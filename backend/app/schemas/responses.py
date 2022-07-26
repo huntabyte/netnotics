@@ -30,13 +30,7 @@ class DeviceResponse(BaseResponse):
     id: int
     name: str
     ip_address: Optional[str] = None
-    fqdn: Optional[str] = None
-    user_id: uuid.UUID
-    site: Optional[str] = None
-    vendor: Optional[str] = None
-    model: Optional[str] = None
-    operating_system: Optional[str] = None
-    os_version: Optional[str] = None
+    host: Optional[str] = None
     manageable: Optional[bool] = False
 
 
