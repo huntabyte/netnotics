@@ -21,7 +21,6 @@
 	import './../app.css';
 	import Icon from '$components/Icon.svelte';
 	import SidebarNavItem from '$components/Sidebar/SidebarNavItem.svelte';
-	import * as api from '$lib/api';
 	let navActive = false;
 
 	const toggleNav = () => {
@@ -42,8 +41,12 @@
 	];
 
 	async function handleLogout() {
-		const response = await api.post(fetch, '/auth/logout');
-		if (response.message === 'Success') {
+		const res = await fetch(`http://localhost:8000/auth/logout`, {
+			method: 'POST',
+			credentials: 'include'
+		});
+
+		if (res.ok) {
 			window.location.replace('/');
 		}
 	}

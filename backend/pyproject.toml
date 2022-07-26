@@ -16,6 +16,7 @@ passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 pydantic = {extras = ["email", "dotenv"], version = "^1.9.0"}
 python-multipart = ">=0.0.5,<0.0.6"
 toml = "^0.10.2"
+netmiko = "^4.1.1"
 
 [tool.poetry.dev-dependencies]
 autoflake = "^1.4"

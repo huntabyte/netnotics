@@ -2,7 +2,7 @@ from typing import Any, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from app.api import deps
 from app.api.deps import CommonDeps
-from app.services.restconf import RESTCONF
+from app.services.restconf import RESTCONF, DeviceConnection
 from app.models import Device
 from app.schemas.requests import DeviceCreateRequest, DeviceUpdateRequest
 from app.schemas.responses import DeviceDataResponse, DeviceResponse
@@ -73,6 +73,17 @@ async def get_all_devices(
 async def get_device(device: Device = Depends(deps.get_device)) -> DeviceResponse:
     """Get a single device by ID"""
     return device
+
+
+@router.get("/{device_id}/detect")
+def get_device_type(device: Device = Depends(deps.get_device)) -> Any:
+    """Detect the device type"""
+    connection = DeviceConnection(
+        host=device.host, username=device.username, password=device.password
+    )
+    type = connection.auto_detect()
+    print(type)
+    return {"type": type}
 
 
 @router.delete("/{device_id}", status_code=200)

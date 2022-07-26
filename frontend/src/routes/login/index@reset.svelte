@@ -1,5 +1,5 @@
 <script context="module">
-	export async function load({ session }) {
+	export async function load({ fetch, session }) {
 		if (session.authenticated === true) {
 			return {
 				status: 302,
@@ -17,6 +17,7 @@
 	let password;
 
 	import { BASE_URL } from '$lib/constants';
+	import { goto } from '$app/navigation';
 
 	async function handleLogin() {
 		const res = await fetch(`${BASE_URL}/auth/login`, {
@@ -31,8 +32,8 @@
 			credentials: 'include'
 		});
 		const data = await res.json();
-		if (data.message === 'Success') {
-			window.location.replace('/');
+		if (res.ok) {
+			window.location.replace('/dashboard');
 		}
 	}
 </script>
@@ -95,7 +96,9 @@
 					</div>
 
 					<div>
-						<button class="w-full btn btn-primary" on:click={handleLogin}>Login</button>
+						<button class="w-full btn btn-primary" on:click|preventDefault={handleLogin}
+							>Login</button
+						>
 					</div>
 				</div>
 			</div>

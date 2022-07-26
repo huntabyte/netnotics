@@ -2,6 +2,7 @@ from typing import Any, Optional
 
 import httpx
 from fastapi import HTTPException, status
+from app.services.auto_detect import detect
 
 
 BASE_URL = "https://{host}/restconf/data"
@@ -11,7 +12,27 @@ HEADERS = {
 }
 
 
-class RESTCONF:
+class DeviceConnection:
+    """
+    The base class for device connection objects
+    """
+
+    def __init__(self, host: str, username: str, password: str) -> "DeviceConnection":
+        self.host = host
+        self.username = username
+        self.password = password
+
+    def auto_detect(self) -> str:
+        """
+        Using Netmiko's autodetect, return the best match device type
+        """
+        type = detect(host=self.host, username=self.username, password=self.password)
+
+        print(type)
+        return type
+
+
+class RESTCONF(DeviceConnection):
     """
     A class which handles and saves HTTP sessions. Currently only for IOS-XE.
     Will eventually be extended to support other platforms.
@@ -21,9 +42,7 @@ class RESTCONF:
         """
         Save information needed to establish the RESTCONF connection/HTTP session
         """
-        self.host = host
-        self.username = username
-        self.password = password
+        super().__init__(host, username, password)
         self.url = BASE_URL.format(host=host)
         self.client = httpx.AsyncClient(
             auth=(self.username, self.password), verify=False, headers=HEADERS

@@ -57,8 +57,8 @@
 
 <h1 class="text-2xl font-semibold pb-3">{interfaceData.name}</h1>
 <div class="flex flex-wrap gap-3">
-	<div class="flex-grow shrink w-full">
-		<Collapse title={'Interface Details'} checked={true}>
+	<div class="flex-grow shrink w-96">
+		<Collapse title={'Interface Details'}>
 			{#each Object.entries(basicDetails) as [key, value]}
 				<div class="flex">
 					<div>
