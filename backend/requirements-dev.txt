@@ -45,7 +45,7 @@ pytest-asyncio==0.18.3; python_version >= "3.7"
 pytest==7.1.2; python_version >= "3.7"
 python-dotenv==0.20.0; python_full_version >= "3.6.1" and python_version >= "3.5"
 python-multipart==0.0.5
-rfc3986==1.5.0; python_version >= "3.6"
+rfc3986==2.0.0; python_version >= "3.6"
 six==1.16.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.3.0"
 sniffio==1.2.0; python_version >= "3.6" and python_full_version >= "3.6.2"
 sqlalchemy2-stubs==0.0.2a22; python_version >= "3.6"
