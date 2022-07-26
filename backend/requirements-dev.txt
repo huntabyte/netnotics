@@ -1,5 +1,5 @@
 alembic==1.7.7; python_version >= "3.6"
-anyio==3.5.0; python_version >= "3.6" and python_full_version >= "3.6.2"
+anyio==3.6.1; python_version >= "3.6" and python_full_version >= "3.6.2"
 asgiref==3.5.1; python_version >= "3.7"
 asyncpg==0.25.0; python_full_version >= "3.6.0"
 atomicwrites==1.4.0; python_version >= "3.7" and python_full_version < "3.0.0" and sys_platform == "win32" or sys_platform == "win32" and python_version >= "3.7" and python_full_version >= "3.4.0"
