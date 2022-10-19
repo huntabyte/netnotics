@@ -1,5 +1,5 @@
 # pull base node image
-FROM node:16-slim
+FROM node:19-slim
 
 # set node environment to development to ensure all packages are installed
 ENV NODE_ENV=development
