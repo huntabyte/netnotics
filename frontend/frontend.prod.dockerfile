@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:19-alpine
 
 
 RUN MKDIR /app
@@ -13,7 +13,7 @@ RUN npm run build
 # Only copy over the Node pieces we need
 # ~> Saves MB
 ###
-FROM node:16-slim
+FROM node:19-slim
 
 WORKDIR /app
 
